@@ -1,0 +1,52 @@
+[
+  {
+    "name": "parámetro 1",
+    "remark": 1,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 2",
+    "remark": 1,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 3",
+    "remark": 1,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 4",
+    "remark": 2,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 5",
+    "remark": 2,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 6",
+    "remark": 2,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 7",
+    "remark": 3,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 8",
+    "remark": 3,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 9",
+    "remark": 3,
+    "matrix": 1
+  },
+  {
+    "name": "parámetro 10",
+    "remark": 3,
+    "matrix": 1
+  }
+]

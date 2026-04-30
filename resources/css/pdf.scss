@@ -1,0 +1,140 @@
+@use "sass:map";
+$maxColumns: 6;
+$spacingRef: 0.25rem;
+$spacialRefs: 't', 'l', 'r', 'b', 'x', 'y';
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('/fonts/OpenSans-regular.ttf');
+}
+
+@page {
+    size: letter;
+    margin: {
+        top: 2.5cm;
+        left: 1.25cm;
+        right: 1.25cm;
+        bottom: 1.5cm;
+    }
+
+    @top-left {
+        content: element(header);
+        width: 100%;
+    }
+
+    @bottom-right { content: element(footer); }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-size: 10pt;
+    font-family: 'Open Sans';
+    margin: 0;
+}
+
+header { position: running(header); }
+footer { position: running(footer); }
+header, footer { font-size: 8pt; }
+table { border-collapse: collapse; }
+td, th { padding: $spacingRef; }
+th, thead th { font-size: 8pt;}
+.break-before-page { break-before: page; }
+.break-inside-avoid-page { break-inside: avoid-page; }
+.break-before-all { break-before: all; }
+.page-number::before { content: counter(page); }
+.total-pages::before { content: counter(pages); }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.justify-center { justify-content: center; }
+.items-center { align-items: center; }
+.grid { display: grid; }
+.w-full { width: 100%; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.text-justify { text-align: justify; }
+.text-sm { font-size: 8pt; }
+.underline { text-decoration-line: underline; }
+.w-min { width: min-content; }
+.border { border: 1px }
+.border-b { border-bottom: 1px solid; }
+.border-black { border-color: black; }
+.border-white { border-color: white; }
+.border-lightgrey { border: lightgrey 1px solid; }
+.bg-gainsboro { background-color: gainsboro; }
+.list {
+    padding-left: calc($spacingRef * 3);
+    padding-right: calc($spacingRef * 2);
+    margin: 0;
+}
+.list > li {
+    padding: $spacingRef;
+}
+.parameters-table > tbody td {
+    padding: 0;
+}
+.font-mono { font-family: monospace; }
+
+@mixin dynamicSpacing($space, $ref, $value) {
+    $sideMap: (
+        't': 'top',
+        'l': 'left',
+        'r': 'right',
+        'b': 'bottom'
+    );
+
+    $side: map.get($sideMap, $ref);
+    @if $side {
+        #{$space}-#{$side}: $value;
+    }
+
+    @if $ref == 'x' {
+        #{$space}-left: $value;
+        #{$space}-right: $value;
+    }
+
+    @if $ref == 'y' {
+        #{$space}-top: $value;
+        #{$space}-bottom: $value;
+    }
+}
+
+@for $i from 1 through $maxColumns {
+    .grid-cols-#{$i} {
+        grid-template-columns: repeat($i, minmax(0, 1fr));
+    }
+
+    .col-span-#{$i} {
+        grid-column: span $i / span $i;
+    }
+}
+
+@for $i from 1 through 256 {
+    $spacing: calc($i * $spacingRef);
+    .p-#{$i} { padding: $spacing; }
+    .m-#{$i} { margin: $spacing; }
+    .gap-#{$i} { gap: $spacing; }
+    .w-#{$i} { width: $spacing; }
+    .max-w-#{$i} { max-width: $spacing; }
+    .h-#{$i} { height: $spacing; }
+    .max-h-#{$i} { max-height: $spacing; }
+
+    @each $ref in $spacialRefs {
+        .p#{$ref}-#{$i} {
+            @include dynamicSpacing('padding', $ref, $spacing);
+        }
+
+        .m#{$ref}-#{$i} {
+            @include dynamicSpacing('margin', $ref, $spacing);
+        }
+
+        .border-#{$ref}-lightgrey {
+            @include dynamicSpacing('border', $ref, solid 1px lightgrey);
+        }
+
+        .border-#{$ref}-white {
+            @include dynamicSpacing('border', $ref, solid 1px white);
+        }
+    }
+}

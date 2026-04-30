@@ -1,0 +1,92 @@
+[
+  {
+    "client_id": 1,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 2,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 3,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 4,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 5,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 6,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 7,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 8,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 9,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  },
+  {
+    "client_id": 10,
+    "is_main_contact": 1,
+    "name": "contacto 1",
+    "phone": "123 456 7890",
+    "cellphone": "123 456 7890",
+    "email": "test@example.com",
+    "alt_email": null
+  }
+]

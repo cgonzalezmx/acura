@@ -1,0 +1,105 @@
+[
+    {
+        "name": "Matriz 1",
+        "children": [
+            {
+                "name": "Regulación 1",
+                "type": "regulation",
+                "lab_matrix_id": 1,
+                "observation": "Observación",
+                "instances": [
+                    { "name": "_default", "type": "definition" }
+                ],
+                "parameters":{
+                    "parámetro 1:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 2:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 3:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 4:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 5:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 6:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 7:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 8:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 9:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    },
+                    "parámetro 10:1": {
+                        "thresholds": {
+                            "_default": [
+                                null,
+                                "N.A."
+                            ]
+                        }
+                    }
+                },
+                "children": [
+                    {
+                        "name": "Simple",
+                        "type": "bundle",
+                        "price": 1000
+                    }
+                ]
+            }
+        ]
+    }
+]

@@ -1,0 +1,29 @@
+{
+    "Regulación 1": [
+        {
+            "paths": ["Simple"],
+            "items": [
+                {
+                    "analysis_area_id": 1,
+                    "parameters": [
+                        "parámetro 1",
+                        "parámetro 2",
+                        "parámetro 3",
+                        "parámetro 4",
+                        "parámetro 5",
+                        "parámetro 6"
+                    ]
+                },
+                {
+                    "analysis_area_id": 2,
+                    "parameters": [
+                        "parámetro 7",
+                        "parámetro 8",
+                        "parámetro 9",
+                        "parámetro 10"
+                    ]
+                }
+            ]
+        }
+    ]
+}

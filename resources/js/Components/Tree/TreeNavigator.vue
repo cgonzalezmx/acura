@@ -16,7 +16,7 @@ interface Events {
 
 const emit = defineEmits<Events>();
 const { treeId, loadChildren } = defineProps<Props>();
-const { nodes, select, clearSelection, expandedKeys, selectedKeys, isLoading } = useTree(treeId);
+const { nodes, select, clearSelection, expandedKeys, selectedKeys } = useTree(treeId);
 
 const treePassThroughOptions: TreePassThroughOptions = {
     nodeIcon({ context }) {
@@ -30,13 +30,10 @@ async function onNodeExpand(node: TreeNode) {
     emit('nodeExpand', node);
     if (node.children) return;
 
-    const tree = useTree(treeId);
-    //tree.isLoading.value = true;
     node.loading = true;
     const response = await loadChildren?.(node)
     node.children = response?.data;
     node.loading = false;
-    //tree.isLoading.value = false;
 }
 
 function onNodeSelect(node: TreeNode) {

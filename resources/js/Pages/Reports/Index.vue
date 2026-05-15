@@ -32,12 +32,6 @@ const queryForm = useForm({
     client: '',
 });
 
-const { state: sample, isLoading, isReady } = useAsyncState(
-    axios.get(route('')).then(({ data }) => data),
-    {},
-    { immediate: false }
-);
-
 function filter() {
     if (Object.values(queryForm.data()).every((item) => !item)) {
         return;
@@ -103,17 +97,18 @@ function filter() {
         <table class="mt-4">
             <thead>
                 <tr>
-                    <th>Muestra</th>
-                    <th>Total análisis</th>
-                    <th>No. tomas</th>
-                    <th>Fecha de muestreo</th>
-                    <th>Muestreado por</th>
-                    <th>Fecha de recepción</th>
-                    <th>Notas de la cotización</th>
+                    <th class="header">Muestra</th>
+                    <th class="header">Total análisis</th>
+                    <th class="header">No. tomas</th>
+                    <th class="header">Fecha de muestreo</th>
+                    <th class="header">Muestreado por</th>
+                    <th class="header">Fecha de recepción</th>
+                    <th class="header">Notas de la cotización</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="sample in samples" :key="sample.id">
+                    <td><Button icon="fa-solid fa-edit"/></td>
                     <td>{{ sample.identifier }}</td>
                     <td>{{ sample.analyses_count }}</td>
                     <td>{{ sample.takes_count }}</td>

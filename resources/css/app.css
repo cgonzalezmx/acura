@@ -4,3 +4,9 @@
 .scroll-hidden {
     scrollbar-width: none;
 }
+
+.header {
+    padding: --spacing(2);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-slate-700)
+}

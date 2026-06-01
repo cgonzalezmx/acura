@@ -39,7 +39,7 @@ function formatInEntriesString(string $csv)
                 </tr>
                 <tr>
                     <td>Dirección</td>
-                    <td @style(['font-size: 8pt' => strlen($quote->client->address) >= 25])>
+                    <td @style(['font-size: 8pt' => strlen($address) >= 25])>
                         {{ $address }}
                     </td>
                 </tr>

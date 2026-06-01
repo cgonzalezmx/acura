@@ -1,6 +1,8 @@
 <?php
 namespace App\Services\Quotes;
 
+use App\Models\Client\Contact;
+use App\Models\Client\SamplingSite;
 use App\Models\Quotes\Entry;
 use App\Models\Quotes\Quote;
 use App\Models\Quotes\Report;
@@ -120,17 +122,42 @@ class QuoteService {
 
     private function syncSelectedContact(Quote $quote, array $data)
     {
+        $contact = Contact::find($data['client_contact_id']);
+        $info = [
+            'name',
+            'is_main_contact',
+            'phone',
+            'cellphone',
+            'email',
+        ];
         $quote->selectedContact()->updateOrCreate(
             ['quote_id' => $quote->id],
-            $data
+            [...$contact->only($info), 'client_contact_id' => $contact->id]
         );
     }
 
     private function syncSelectedSite(Quote $quote, array $data)
     {
+        $samplingSite = SamplingSite::find($data['client_sampling_site_id']);
+        $info = [
+            'name',
+            'industry_sector',
+            'is_main_site',
+            'neighborhood',
+            'city',
+            'state',
+            'contact_name',
+            'contact_phone',
+            'zip_code',
+        ];
         $quote->selectedSamplingSite()->updateOrCreate(
             ['quote_id' => $quote->id],
-            $data
+            [
+                ...$samplingSite->only($info),
+                'address' => join(', ', $samplingSite->only(['street', 'external_number', 'internal_number'])),
+                'client_sampling_site_id' => $samplingSite->id,
+                'phone' => $samplingSite->contact_phone,
+            ]
         );
     }
 

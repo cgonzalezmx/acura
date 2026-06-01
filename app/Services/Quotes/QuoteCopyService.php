@@ -31,7 +31,7 @@ class QuoteCopyService
             $currentLetterIndex = DB::table('quotes')
                 ->where('original_ancestor_id', '=', $originalQuote->original_ancestor_id)
                 ->max('letter_index');
-            
+
             $quoteCopy =  $originalQuote
                             ->replicate()
                             ->fill([
@@ -40,7 +40,8 @@ class QuoteCopyService
                                 'identifier' => $this->identifierService->makeIdentifier(
                                     $originalQuote->sequence_index,
                                     $originalQuote->originalCreator->alias
-                                ) . $this->getLetterIndex($currentLetterIndex)
+                                    ) . $this->getLetterIndex($currentLetterIndex),
+                                'authorized' => false,
                             ]);
             $quoteCopy->save();
             $originalEntries = $originalQuote->entries;
@@ -85,7 +86,7 @@ class QuoteCopyService
     {
         $thresholds->each(function(Threshold $threshold) use($report) {
             $copy = $threshold->replicate();
-            $report->thresholds()->save($copy); 
+            $report->thresholds()->save($copy);
         });
     }
 
@@ -102,7 +103,7 @@ class QuoteCopyService
     public function copyExpensesToQuote(Collection $expenses, Quote $quote)
     {
         $decoupledExpenses = collect($expenses->toArray());
-        
+
         $quote->expenses()->saveMany($decoupledExpenses->mapInto(Expense::class)->all());
         $quote->refresh();
     }

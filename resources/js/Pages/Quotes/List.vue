@@ -1,26 +1,18 @@
 <script setup lang="ts">
 import HomeLayout from '@/Layouts/HomeLayout.vue';
-import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import Menubar from 'primevue/menubar';
-import { Head, router } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { MenuItem } from 'primevue/menuitem';
-import InputText from 'primevue/inputtext';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
-import { defineAsyncComponent, ref } from 'vue';
+import { defineAsyncComponent, useTemplateRef } from 'vue';
 import vCurrency from '@/Directives/vCurrency';
-import PopupMenu from '@/Components/PopupMenu.vue';
 import { useDialog } from 'primevue/usedialog';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
-import ConfirmationDialog from './Partials/ConfirmationDialog.vue';
 import { timestamp } from '@/utils/formatters';
-import RangeDatePicker from '@/Components/RangeDatePicker.vue';
-import Toolbar from 'primevue/toolbar';
-import { format, startOfMonth } from 'date-fns';
 import Button from 'primevue/button';
-import { useForm } from '@inertiajs/vue3';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import IndexTable from '@/Components/IndexTable.vue';
 
 interface Props {
     quotes: any[];
@@ -31,6 +23,7 @@ const { quotes } = defineProps<Props>();
 const SamplingSites = defineAsyncComponent(() => import('./Partials/SamplingSites.vue'));
 const dialog = useDialog();
 const toast = useToast();
+const indexTable = useTemplateRef<InstanceType<typeof IndexTable>>('indexTable');
 
 const menuItems: MenuItem[] = [
     {
@@ -46,74 +39,65 @@ const menuItems: MenuItem[] = [
     },
     {
         label: 'autorizar',
-        icon: 'fa-solid fa-check'
+        icon: 'fa-solid fa-check',
+        command: authorize
     },
+    {
+        label: 'Eliminar',
+        icon: 'fa-solid fa-trash',
+        command: trash
+    }
 ];
 
-const filters = ref({});
-const selection = ref();
-const confirmationDialogVisible = ref(false);
-const date = new Date();
-const firstOfMonth = startOfMonth(date);
-const form = useForm({
-    from: firstOfMonth,
-    until: date
-});
+function copy() {
+    if (!indexTable.value?.checkSelection()) {
+        return;
+    }
 
-function search() {
-    form
-        .transform((data) => {
-            const dateFormat = 'yyyy-MM-dd';
-            return {
-                from: format(data.from, dateFormat),
-                until: format(data.until, dateFormat)
-            }
-        })
-        .get(route('quotes.index'), {
-        only: ['quotes'],
-        preserveState: true
+    const selection = indexTable.value.selection;
+    indexTable.value?.openConfirmationDialog({
+        header: 'Copiar cotización',
+        body: [`¿Desea hacer una copia de ${selection.identifier}?`],
+        successMessage: `Se ha copiado ${selection.identifier} con éxito.`,
+        route: route('quotes.copy', selection.id),
     });
 }
 
-function copy() {
-    if (!selection.value) {
+function authorize() {
+    if (!indexTable.value?.checkSelection()) {
+        return;
+    }
+
+    if (indexTable.value.selection.authorized) {
         toast.add({
-            detail: 'Debe seleccionar una cotización.',
-            severity: 'warn',
+            severity: 'info',
+            detail: 'Esta cotización ya ha sido autorizada',
             life: 3000
         });
         return;
     }
 
-    const dialogInstance = dialog.open(ConfirmationDialog, {
-        props: {
-            modal: true,
-            draggable: false,
-            header: 'Copiar cotización',
-        },
-        data: {
-            quoteIdentifier: selection.value.identifier
-        },
-        emits: {
-            onConfirm() {
-                router.post(route('quotes.copy', selection.value.id), undefined, {
-                    onSuccess() {
-                        toast.add({
-                            detail: `Se ha copiado ${selection.value.identifier} con éxito.`,
-                            severity: 'success',
-                            life: 3000
-                        });
-                        dialogInstance.close();
-                    }
-                });
-            }
-        }
-    })
-
+    const selection = indexTable.value.selection;
+    indexTable.value.openConfirmationDialog({
+        header: 'Autorizar cotización',
+        body: [
+            `¿Autorizar ${selection.identifier}?`,
+            'Una vez autorizada no se podrán realizar cambios.'
+        ],
+        successMessage: `Se ha autorizado ${selection.identifier} con éxito.`,
+        route: route('quotes.authorize', selection.id),
+    });
 }
 
-function authorize() {
-
+function trash() {
+    const selection = indexTable.value?.selection;
+    indexTable.value?.openConfirmationDialog({
+        method: 'delete',
+        header: 'Eliminar cotización',
+        body: [`¿Eliminar ${selection.identifier}?`],
+        successMessage: `Se eliminó ${selection.identifier}`,
+        route: route('quotes.destroy', selection.id)
+    });
 }
 
 async function showSampleSites(quote: any) {
@@ -134,69 +118,46 @@ async function showSampleSites(quote: any) {
 <template>
     <Head title="Cotizaciones"/>
     <h2 class="text-3xl font-semibold">Cotizaciones</h2>
-    <DataTable
-        v-model:filters="filters"
-        v-model:selection="selection"
-        :value="quotes"
-        selection-mode="single"
-        data-key="id"
-        pt:root:class="flex flex-col overflow-hidden w-full">
-        <template #header>
-            <Toolbar>
-                <template #start>
-                    <RangeDatePicker v-model:start="form.from" v-model:end="form.until"/>
-                    <Button label="Buscar" @click="search"/>
-                </template>
-            </Toolbar>
-            <Menubar :model="menuItems">
-                <template #end>
-                    <IconField>
-                        <InputIcon class="fa-solid fa-magnifying-glass"/>
-                        <InputText/>
-                    </IconField>
-                </template>
-            </Menubar>
-        </template>
+    <IndexTable :value="quotes" :menu-items :global-filters="['identifier', 'client']" ref="indexTable">
+        <Column selection-mode="single"/>
         <Column>
             <template #body="{ data }">
-                <PopupMenu
-                    outlined
-                    severity="secondary"
-                    :model="[
-                        {
-                            label: 'Editar',
-                            icon: 'fa-solid fa-file-pen',
-                            url: route('quotes.edit', data),
-                            target: '_blank'
-                        },
-                        {
-                            label: 'PDF',
-                            icon: 'fa-solid fa-file-pdf',
-                            url: route('quotes.show', data.id),
-                            target: '_blank'
-                        },
-                        {
-                            label: 'Puntos de muestreo',
-                            icon: 'fa-solid fa-location-dot',
-                            command: () => showSampleSites(data)
-                        }
-                    ]"/>
+                <div class="grid grid-cols-3">
+                    <div>
+                        <Button v-if="!data.authorized"
+                            icon="fa-solid fa-file-pen"
+                            as="a"
+                            :href="route('quotes.edit', data.id)"
+                            target="_blank"
+                        />
+                    </div>
+                    <div>
+                        <Button v-if="data.authorized" icon="fa-solid fa-location-dot" @click="showSampleSites(data)"/>
+                    </div>
+                    <div>
+                        <Button icon="fa-solid fa-file-pdf"
+                            as="a"
+                            :href="route('quotes.show', data.id)"
+                            target="_blank"
+                        />
+                    </div>
+                </div>
             </template>
         </Column>
-        <Column>
-        </Column>
         <Column header="Identificador" field="identifier"/>
+        <Column header="Autorizada">
+            <template #body="{ data }">
+                <div v-if="data.authorized" class="flex justify-center">
+                    <FontAwesomeIcon :icon="faCircleCheck" size="xl" class="text-emerald-500"/>
+                </div>
+            </template>
+        </Column>
         <Column header="Fecha de registro">
             <template #body="{ data }">
                 {{ timestamp(data.created_at) }}
             </template>
         </Column>
-        <Column header="Costo bruto">
-            <template #body="{ data }">
-                <span v-currency="data.gross_cost"></span>
-            </template>
-        </Column>
-        <Column header="Costo neto">
+        <Column header="Costo">
             <template #body="{ data }">
                 <span v-currency="data.net_cost"></span>
             </template>
@@ -204,6 +165,5 @@ async function showSampleSites(quote: any) {
         <Column header="Cliente" field="client"/>
         <Column header="Contacto" field="contact_name"/>
         <Column header="Teléfono" field="contact_phone"/>
-        <Column header="Email" field="contact_email"/>
-    </DataTable>
+    </IndexTable>
 </template>

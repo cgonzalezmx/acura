@@ -53,7 +53,12 @@ function authorize(event: Event, entry: any) {
         <Column header="Punto de muestreo" field="title"/>
         <Column header="Muestreo">
             <template #body="{ data }">
-                <Button label="Autorizar" @click="authorize($event, data)"/>
+                <Button
+                    :label="data.authorized ? 'Autorizada' : 'Autorizar'"
+                    :icon="data.authorized ? 'fa-solid fa-check' : ''"
+                    :severity="data.authorized ? 'success' : ''"
+                    @click="authorize($event, data)"
+                    :disabled="data.authorized"/>
             </template>
         </Column>
     </DataTable>

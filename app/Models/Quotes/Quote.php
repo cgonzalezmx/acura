@@ -7,6 +7,7 @@ use App\Models\Client\SamplingSite;
 use App\Models\Samples\Sample;
 use App\Models\SamplingFormat;
 use App\Models\Traits\Blamable;
+use App\Models\Traits\FilterableByDate;
 use App\Models\Traits\HasYearlySequence;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -16,12 +17,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Attributes\Scope;
-use Illuminate\Database\Eloquent\Builder;
 
 class Quote extends Model
 {
-    use SoftDeletes, Blamable, HasYearlySequence;
+    use SoftDeletes, Blamable, HasYearlySequence, FilterableByDate;
 
     protected $fillable = [
         'year',
@@ -57,7 +56,8 @@ class Quote extends Model
         'tree' => 'array',
         'tree_leaves' => 'array',
         'sample_delivered_by_client' => 'boolean',
-        'client_data_as_sampling_site' => 'boolean'
+        'client_data_as_sampling_site' => 'boolean',
+        'authorized' => 'boolean',
     ];
 
     public function client(): HasOne
@@ -119,17 +119,5 @@ class Quote extends Model
     public function originalCreator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'original_creator');
-    }
-
-    #[Scope]
-    protected function from(Builder $query, string $date)
-    {
-        $query->whereDate('created_at', '>=', $date);
-    }
-
-    #[Scope]
-    protected function until(Builder $query, string $date)
-    {
-        $query->whereDate('created_at', '<=', $date);
     }
 }

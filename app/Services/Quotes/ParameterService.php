@@ -42,7 +42,7 @@ class ParameterService
             ->each(function($val, $attr) use($parameter) {
                 $parameter->setAttribute($attr, $val);
             });
-        
+
         $parameter->save();
         $parameter->quoteRemarks()->sync($request->quote_remarks);
         $parameter->samplingRemarks()->sync($request->sampling_remarks);
@@ -112,7 +112,7 @@ class ParameterService
 
     public function shouldSpliceFirstChunk(int $totalEntries, bool $hasPriceAdjustment): bool
     {
-        return 
+        return
             ($totalEntries >= 3 && (($totalEntries - 3) % 10) < 8);
     }
 

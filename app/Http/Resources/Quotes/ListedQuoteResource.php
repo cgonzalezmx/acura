@@ -24,6 +24,7 @@ class ListedQuoteResource extends JsonResource
             'contact_name' => $this->contactInSystem->first()->name,
             'contact_phone' => $this->contactInSystem->first()->phone,
             'contact_email' => $this->contactInSystem->first()->email,
+            'authorized' => $this->authorized,
         ];
     }
 }

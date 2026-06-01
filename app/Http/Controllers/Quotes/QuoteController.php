@@ -2,24 +2,20 @@
 
 namespace App\Http\Controllers\Quotes;
 
-use App\DTO\Client\SamplingSite;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Quotes\StoreQuoteRequest;
 use App\Http\Resources\Quotes\ListedQuoteResource;
 use App\Http\Resources\Quotes\QuoteResource;
-use App\Models\Quotes\CommercialTerm;
-use App\Models\Quotes\Note;
 use App\Models\Quotes\Quote;
-use App\PDF\Quote as QuotePDF;
 use App\Services\Catalog\AnalysisAreaService;
-use App\Services\Quotes\ParameterService;
+use App\Services\Quotes\QuoteFile;
 use App\Services\Quotes\QuoteCopyService;
 use App\Services\Quotes\QuoteService;
 use App\Services\Regulatory\Structure\TreeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Str;
+use WeasyPrint\Facade as Weasyprint;
 
 class QuoteController extends Controller
 {
@@ -41,7 +37,7 @@ class QuoteController extends Controller
                 'client:name,quote_id',
                 'contactInSystem:name,phone,email,id'
             ])
-            ->select(['id', 'identifier', 'created_at', 'gross_cost', 'net_cost'])
+            ->select(['id', 'identifier', 'created_at', 'net_cost', 'authorized'])
             ->from($from)
             ->until($until)
             ->get();
@@ -75,9 +71,9 @@ class QuoteController extends Controller
             'entries' => $validated['entries']
         ]);
 
-        $request->session()->flash('message', "Cotización {$quote->identifier} creada.");
+        $request->session()->flash('message', "Cotización {$quote?->identifier} creada.");
 
-        return to_route('quotes.edit', [ 'quote' => $quote->id ]);
+        return to_route('quotes.edit', [ 'quote' => $quote?->id ]);
     }
 
     public function edit(Quote $quote, TreeService $tree, QuoteService $quoteService, AnalysisAreaService $areas)
@@ -104,7 +100,6 @@ class QuoteController extends Controller
                     'name' => $item->contact_name,
                     'phone' => $item->contact_phone ?? $item->contact_cellphone,
                     'email' => $item->contact_email ?? $item->contact_alt_email,
-                    'address' => $item
                 ]
             ];
         });
@@ -120,79 +115,15 @@ class QuoteController extends Controller
         ]);
     }
 
-    public function show(Quote $quote, ParameterService $parameters)
+    public function show(Quote $quote, QuoteFile $file)
     {
-        $params = $parameters->withSystemInfo($quote);
-        $arranged = $parameters->arrange($params)->values();
-        $firstPage = null;
-        $chunks = null;
-        $totalEntries = $quote->entries->count();
-        $needsFirstChunkSpliced = $parameters->shouldSpliceFirstChunk($totalEntries, isset($quote->price_adjustment));
-        $pages = null;
-
-        $quoteRemarks = $params
-            ->pluck('quote_remarks')
-            ->flatten(1)
-            ->unique()
-            ->sortBy('code', SORT_NATURAL);
-
-        if ($needsFirstChunkSpliced) {
-            $spliced = $parameters->spliceFirstChunk($arranged, $totalEntries);
-            $firstPage = collect([$arranged]);
-            $chunks = $firstPage->merge($spliced->chunk(40));
-        }
-        else {
-            $chunks = $arranged->chunk(40);
-        }
-
-        $pages = $parameters->groupByInEntries($chunks);
-        $AnalysedMatrices = $quote
-            ->entries
-            ->map(fn($entry) => $entry->matrix->name)
-            ->unique()
-            ->join(', ');
-
-        $contact = $quote->authorized ? $quote->selectedContact : $quote->contactInSystem->first();
-        $client = $quote->client;
-        $fullAddres = [
-            $client->address,
-            "Col: {$client->neighborhood}",
-            "CP: {$client->zip_code}",
-            $client->city,
-            $client->state,
-        ];
-        $samplingSite = $quote->client_data_as_sampling_site
-            ? new SamplingSite([
-                'name' => $quote->client->name,
-                'address' => join(', ', $fullAddres),
-                'contact_name' => $contact->name,
-                'contact_phone' => $contact->phone ?? $contact->cellphone
-            ])
-            : new SamplingSite([
-                'name' => $quote->samplingSiteInSystem()->first()->name,
-                'address' => '',
-                'conctact_name' => $quote->samplingSiteInSystem()->first()->contact_name,
-                'conctact_phone' => $quote->samplingSiteInSystem()->first()->contact_phone
+        if ($quote->authorized) {
+            return response(Storage::get($quote->file_path), headers: [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline',
             ]);
-        $maxResultTimeLapse = $quote->entries->max('result_time_lapse');
-        $commercialTerms = CommercialTerm::all()->map(function($term) use ($maxResultTimeLapse) {
-            return Str::swap([':tiempoResultados' => $maxResultTimeLapse], $term->text);
-        });
-        return (new QuotePDF([
-            'quote' => $quote,
-            'contact' => $contact,
-            'analyzedMatrices' => $AnalysedMatrices,
-            'samplingSite' => $samplingSite,
-            'entries' => $quote->entries,
-            'totalEntries' => $totalEntries,
-            'parameterPages' => $pages,
-            'notes' => Note::all(),
-            'commercialTerms' => $commercialTerms,
-            'userName' => $quote->createdBy->name,
-            'signaturePath' => Storage::url($quote->createdBy->signature_path),
-            'quoteRemarks' => $quoteRemarks,
-            'address' => join(', ', $fullAddres),
-        ]))->inline();
+        }
+        return $file->process($quote)->inline();
     }
 
     public function update(Quote $quote, StoreQuoteRequest $request)
@@ -219,6 +150,32 @@ class QuoteController extends Controller
 
     public function entries(Quote $quote)
     {
-        return response()->json($quote->entries);
+        $query = $quote->entries();
+        $query->withExists('samplingFormat');
+        $entries = $query->get()->map(function($entry) {
+            return [
+                'id' => $entry->id,
+                'authorized' => $entry->sampling_format_exists,
+                'title' => $entry->title
+            ];
+        });
+        return response()->json($entries);
+    }
+
+    public function authorize(Quote $quote, QuoteFile $file)
+    {
+        $pdf = $file->process($quote);
+        $filePath = "quotes/{$pdf->filename()}";
+        $service = Weasyprint::prepareSource($pdf->source());
+        $service->putFile($filePath, 'local');
+        $quote->authorized = true;
+        $quote->file_path = $filePath;
+        $quote->save();
+    }
+
+    public function destroy(Quote $quote)
+    {
+        $quote->delete();
+        return back();
     }
 }

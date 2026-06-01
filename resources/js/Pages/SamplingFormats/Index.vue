@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import HomeLayout from '@/Layouts/HomeLayout.vue';
 import Button from 'primevue/button';
 import { Head } from '@inertiajs/vue3';
+import IndexTable from '@/Components/IndexTable.vue';
+import { MenuItem } from 'primevue/menuitem';
+import { useTemplateRef } from 'vue';
 
 interface Props {
     samplingFormats: any[];
@@ -11,14 +13,34 @@ interface Props {
 
 const props = defineProps<Props>();
 defineOptions({ layout: HomeLayout });
+const menuItems: MenuItem[] = [
+    {
+        label: 'Borrar',
+        icon: 'fa-solid fa-trash',
+        command: trash
+    }
+];
+const indexTable = useTemplateRef<InstanceType<typeof IndexTable>>('indexTable');
+
+function trash() {
+    const selection = indexTable.value?.selection;
+    indexTable.value?.openConfirmationDialog({
+        method: 'delete',
+        header: 'Eliminar formato',
+        body: [`¿Eliminar ${selection.identifier}?`],
+        successMessage: `Se eliminó ${selection.identifier}`,
+        route: route('sampling-formats.destroy', selection.id)
+    });
+}
 </script>
 
 <template>
     <Head title="Formatos de muestreo"/>
-    <DataTable :value="samplingFormats">
+    <IndexTable :value="samplingFormats" :menuItems :globalFilters="['identifier', 'quote_identifier']" ref="indexTable">
+        <Column selection-mode="single"/>
         <Column>
             <template #body="{ data }">
-                <Button label="imprimir" as="a" :href="route('sampling-formats.show', `${data.identifier}`)" target="_blank"/>
+                    <Button icon="fa-solid fa-file-pdf" as="a" :href="route('sampling-formats.show', `${data.identifier}`)" target="_blank"/>
             </template>
         </Column>
         <Column header="Cotización" field="quote_identifier"/>
@@ -26,8 +48,5 @@ defineOptions({ layout: HomeLayout });
         <Column header="Partida" field="entry_index"/>
         <Column header="Fecha de registro" field="created_at"/>
         <Column header="Cliente" field="client_name"/>
-        <Column header="Contacto" field="contact_name"/>
-        <Column header="Teléfono" field="contact_phone"/>
-        <Column header="Email" field="contact_email"/>
-    </DataTable>
+    </IndexTable>
 </template>

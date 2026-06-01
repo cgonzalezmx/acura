@@ -12,7 +12,12 @@ class SelectedContact extends Model
     protected $table = 'quote_selected_contacts';
     protected $fillable = [
         'quote_id',
-        'client_contact_id'
+        'client_contact_id',
+        'name',
+        'phone',
+        'cellphone',
+        'is_main_contact',
+        'email',
     ];
 
     public function systemContact(): BelongsTo

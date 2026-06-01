@@ -19,17 +19,21 @@ class SamplingFormatController extends Controller
     )
     {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $samplingFormats = SamplingFormat::with(
-                [
-                    'quote',
-                    'quote.client:quote_id,name',
-                    'quote.selectedContact',
-                    'quote.selectedContact.systemContact:id,name,phone,cellphone,email,alt_email',
-                    'entry'
-                ]
-            )
+        $from = $request->input('from', date('Y-m-01'));
+        $until = $request->input('until', date('Y-m-d'));
+        $samplingFormats = SamplingFormat::with([
+                'quote' => function($query) {
+                    $query->withTrashed();
+                },
+                'quote.client:quote_id,name',
+                'quote.selectedContact',
+                'quote.selectedContact.systemContact:id,name,phone,cellphone,email,alt_email',
+                'entry'
+            ])
+            ->from($from)
+            ->until($until)
             ->get();
         return inertia('SamplingFormats/Index', [
             'samplingFormats' => ListResource::collection($samplingFormats)
@@ -59,7 +63,7 @@ class SamplingFormatController extends Controller
         $file_path = $samplingFormat->path;
         return response(Storage::get($file_path), headers: [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline'
+            'Content-Disposition' => 'inline',
         ]);
     }
 
@@ -84,5 +88,10 @@ class SamplingFormatController extends Controller
             ->whereLike('identifier', "%{$request->str('term')}%")
             ->get();
         return response()->json($samplingFormats);
+    }
+
+    public function destroy(SamplingFormat $samplingFormat)
+    {
+        $samplingFormat->delete();
     }
 }

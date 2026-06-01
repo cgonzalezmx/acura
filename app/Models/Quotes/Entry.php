@@ -3,6 +3,7 @@
 namespace App\Models\Quotes;
 
 use App\Models\Catalog\LabMatrix;
+use App\Models\SamplingFormat;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -70,7 +71,7 @@ class Entry extends Model
 
     public function reports(): HasMany
     {
-        return $this->hasMany(Report::class);
+        return $this->hasMany(Report::class, 'entry_id');
     }
 
     public function matrix(): HasOne
@@ -81,6 +82,11 @@ class Entry extends Model
     public function quote(): BelongsTo
     {
         return $this->belongsTo(Quote::class);
+    }
+
+    public function samplingFormat(): HasOne
+    {
+        return $this->hasOne(SamplingFormat::class, 'entry_id');
     }
 
     protected function index(): Attribute

@@ -5,7 +5,6 @@ namespace App\Services\Samples;
 use App\Models\Samples\Sample;
 use App\Services\UserService;
 use Illuminate\Support\Collection;
-use Inertia\Inertia;
 
 class SampleIndex
 {

@@ -75,7 +75,7 @@ export function useEntryHandler(entry: Entry) {
             const structure = mainReport.value.structure.pathToSelection.value.map((node) => node.label);
             const instance = mainReport.value.instance.pathToSelection.value?.map((node) => node.label);
             let concept = [ ...structure ];
-            
+
             if (typeof instance !== 'undefined' && !instance.includes('_default')) {
                 concept = [ ...concept.concat(instance) ];
             }
@@ -130,13 +130,13 @@ export function useEntryHandler(entry: Entry) {
     );
 
     watch(() => entry.extras + entry.bundle_price, (totalCost) => entry.total_cost = totalCost);
-    
+
     function setupWatchers(report: Report) {
         watch(report.structure.pathToSelection, (path) => {
             withRegulationInPath(path, (regulation) => {
                 report.instance.nodes.value = regulation?.instances;
 
-                if (report.report_id === mainReport.value?.report_id) { 
+                if (report.report_id === mainReport.value?.report_id) {
                     matrixId.value = regulation.matrix.id;
                     entry.matrix_id = regulation.matrix.id;
 
@@ -295,6 +295,6 @@ export function useEntryHandler(entry: Entry) {
         allReports,
         addReport,
         removeReport,
-        setupReports 
+        setupReports
     };
 }

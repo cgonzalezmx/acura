@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Report extends Model
 {
@@ -49,5 +50,21 @@ class Report extends Model
     public function entry(): BelongsTo
     {
         return $this->belongsTo(Entry::class);
+    }
+
+    protected function letter(): Attribute
+    {
+        return Attribute::make(
+            get: function() {
+                $index = DB::table($this->table)
+                    ->select(DB::raw('count(id) as `index`'))
+                    ->where('id', '<=', $this->id)
+                    ->where('entry_id', '>=', $this->entry_id)
+                    ->first()
+                    ->index;
+
+                return chr(65 + $index - 1);
+            }
+        );
     }
 }

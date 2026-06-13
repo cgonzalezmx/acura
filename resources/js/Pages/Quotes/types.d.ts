@@ -30,6 +30,7 @@ export interface Bundle {
 }
 
 export interface Threshold {
+    id?: number;
     parameter_id: number;
     min: string | undefined;
     max: string;

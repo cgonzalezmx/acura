@@ -115,6 +115,18 @@ export const useEntryStore = defineStore('entries', () => {
                 selectedKeys: unref(report.instance.selectedKeys)
             });
 
+            const systemThresholds = shallowReactive(makeNewMap<number, Threshold>(report.thresholds.system));
+            const customThresholds = shallowReactive(makeNewMap<number, Threshold>(report.thresholds.custom));
+
+            if (isCopy) {
+                systemThresholds.keys().forEach((k) => {
+                    systemThresholds.get(k)!.id = undefined;
+                });
+                customThresholds.keys().forEach((k) => {
+                    customThresholds.get(k)!.id = undefined;
+                });
+            }
+
             baseEntry.reports[reportId] = {
                 id: null,
                 report_id: reportId,
@@ -123,8 +135,8 @@ export const useEntryStore = defineStore('entries', () => {
                 is_main_report: index === 0 ? true : false,
                 parameters: shallowReactive(makeNewMap<number, { quantity: number, from_system: boolean}>(report.parameters)),
                 thresholds: {
-                    system: shallowReactive(makeNewMap<number, Threshold>(report.thresholds.system)),
-                    custom: reactive(makeNewMap(report.thresholds.custom))
+                    system: systemThresholds,
+                    custom: customThresholds,
                 },
                 observation: ref(report.observation)
             }

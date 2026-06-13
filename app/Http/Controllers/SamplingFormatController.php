@@ -9,6 +9,7 @@ use App\Services\Formats\ClientEntityAdapter;
 use App\Services\Formats\SamplingFormatAdapter;
 use App\Services\SamplingFormats\SamplingFormatService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use WeasyPrint\Facade as Weasyprint;
 
@@ -44,6 +45,19 @@ class SamplingFormatController extends Controller
     {
         $entry = Entry::find($request->entry_id);
         $format = $this->service->createSamplingFormat($entry);
+        $entry->with(['reports:id']);
+        $reports = $entry->reports;
+        $reports->append('letter');
+
+        DB::transaction(function() use ($reports) {
+            foreach ($reports as $r) {
+                DB::table('report_thresholds')
+                    ->where('report_id', $r->id)
+                    ->update([
+                        'letter' => $r->letter
+                    ]);
+            }
+        });
 
         if ($format) {
             $data = $adapter->process($format);

@@ -1,11 +1,12 @@
 /node_modules/
 /database/factories/
 /database/database.sqlite
-/resources/js/
+/database/seeders/
+/resources/js/Pages/Batches/
+/resources/js/composables/useMainMenu.ts
 /public/hot
 /weasyprint
 README.md
-*.ts
 *.config.*
 composer.lock
 package-lock.json
@@ -22,3 +23,6 @@ README.md
 CHANGELOG.md
 /storage
 /public/storage
+/resources/views/
+/app/Services/UserService.php
+/app/Services/SamplingFormats/SamplingFormatIdentifierService.php

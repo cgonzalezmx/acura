@@ -5,6 +5,7 @@ namespace App\Models\Samples;
 use App\Models\Analysis;
 use App\Models\Quotes\Entry;
 use App\Models\Quotes\Quote;
+use App\Models\Quotes\Report;
 use App\Models\SamplingFormat;
 use App\Models\Traits\Blamable;
 use App\Models\Traits\LocalTimezone;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Sample extends Model
@@ -27,7 +29,8 @@ class Sample extends Model
         'sampling_point',
         'reception_date',
         'sampled_by',
-        'observation'
+        'observation',
+        'entry_id',
     ];
 
     protected $casts = [
@@ -82,9 +85,19 @@ class Sample extends Model
         );
     }
 
+    public function reports(): HasManyThrough
+    {
+        return $this->hasManyThrough(Report::class, Entry::class, 'id', 'entry_id', 'entry_id');
+    }
+
     public function sampler(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sampled_by', 'id');
+    }
+
+    public function thresholds(): HasMany
+    {
+        return $this->hasMany(Threshold::class);
     }
 
     protected function matrix(): Attribute
@@ -95,7 +108,7 @@ class Sample extends Model
     protected function client(): Attribute
     {
         return Attribute::make(function() {
-            return $this->samplingFormat->quote->client;
+            return $this->quote->client;
         });
     }
 

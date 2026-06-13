@@ -4,7 +4,10 @@ namespace App\Services\Samples;
 
 use App\Models\Quotes\Client;
 use App\Models\Quotes\Quote;
+use App\Models\Quotes\Threshold as ReportThreshold;
 use App\Models\Samples\Sample;
+use App\Models\Samples\Threshold as SampleThreshold;
+use App\Models\SamplingFormat;
 use App\Services\Analyses\AnalysisService;
 use Illuminate\Support\Facades\DB;
 
@@ -24,13 +27,20 @@ class SampleService
             $item['sequence'] = $index + 1;
             return $item;
         });
+        $entryId = SamplingFormat::select(['entry_id'])
+            ->find($sample['sampling_format_id'])
+            ->entry_id;
 
-        DB::transaction(function() use($sample, $takes) {
-            $sample = Sample::create($sample);
+        DB::transaction(function() use($entryId, $sample, $takes) {
+            $sample = Sample::create([...$sample, 'entry_id' => $entryId]);
+            $sample->save();
             $sample->takes()->createMany($takes->toArray());
             $sample->refresh();
-            $this->analysisService->setSample($sample)
-                ->generateAnalyses();
+            $this->generateThresholds($sample);
+            $sample->refresh();
+            $this->analysisService->generateAnalyses($sample);
+            $sample->refresh();
+            $this->analysisService->addSampleThresholds($sample);
         });
     }
 
@@ -105,5 +115,62 @@ class SampleService
         $quotes = Quote::with($samplesRelation)->select('id')->whereIn('quotes.id', $clientQuotes)->get();
 
         return $quotes->pluck('samples')->flatten(1);
+    }
+
+
+    public function getRelations()
+    {
+        return [
+            'takes',
+            'quote',
+            'analyses' => function($query) {
+                $query->with([
+                    'parameter' => function($subQuery) {
+                        $subQuery->join('analyses', function($join) {
+                            $join->on('parameters.id', '=', 'analyses.parameter_id');
+                        });
+                        $subQuery->join('measurement_units', function($join) {
+                            $join->on('parameters.measurement_unit_id', '=', 'measurement_units.id');
+                        });
+                        $rawQuantification = DB::raw("
+                            CASE analyses.range
+                                WHEN 'low' THEN parameters.quantification_low_range
+                                WHEN 'high' THEN parameters.quantification_high_range
+                                ELSE parameters.quantification_mid_range
+                            END as quantification
+                        ");
+                        $rawUncertainty = DB::raw("
+                            CASE analyses.range
+                                WHEN 'low' THEN parameters.uncertainty_low_range
+                                WHEN 'high' THEN parameters.uncertainty_high_range
+                                ELSE parameters.uncertainty_mid_range
+                            END as uncertainty
+                        ");
+                        $subQuery->select([
+                            'parameters.id as id',
+                            'parameters.name as name',
+                            'measurement_units.unit as unit',
+                            $rawQuantification,
+                            $rawUncertainty,
+                        ]);
+                    },
+                    'thresholds',
+                ]);
+            },
+        ];
+    }
+
+    private function generateThresholds(Sample $sample)
+    {
+        $sample->with(['reports:id']);
+        $reportIds = $sample->reports->pluck('id');
+        $reportThresholds = ReportThreshold::whereIn('report_id', $reportIds)->get();
+        $sampleThresholds = [];
+        $reportThresholds
+            ->select(['min', 'max', 'letter', 'parameter_id'])
+            ->each(function($threshold) use(&$sampleThresholds) {
+                $sampleThresholds[] = SampleThreshold::create($threshold);
+            });
+        $sample->thresholds()->saveMany($sampleThresholds);
     }
 }

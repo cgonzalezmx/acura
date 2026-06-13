@@ -10,3 +10,8 @@
     font-weight: var(--font-weight-semibold);
     color: var(--color-slate-700)
 }
+
+.cell {
+    padding: --spacing(2);
+    vertical-align: middle;
+}

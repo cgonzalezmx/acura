@@ -56,7 +56,7 @@ function getThresholdValues(report: Report, parameterId: number, boundary: 'min'
     const customThresholds: Threshold | undefined = report.thresholds.custom.get(parameterId);
     const systemThresholds: Threshold | undefined = report.thresholds.system.get(parameterId);
     const customBoundary = customThresholds?.[boundary];
-    const value = typeof customBoundary !== 'undefined' && customBoundary !== null
+    const value = typeof customBoundary !== 'undefined'
         ? customBoundary
         : systemThresholds?.[boundary];
 
@@ -65,20 +65,6 @@ function getThresholdValues(report: Report, parameterId: number, boundary: 'min'
 
 const setCustomThresholdValues = useDebounceFn((report: Report, parameterId: number, boundary: 'min' | 'max', value: string, id: number | undefined = undefined) => {
     const customThresholds = report.thresholds.custom;
-    const tmp = customThresholds.get(parameterId);
-    console.log('trigger 1')
-    if (
-        !value
-        && ((boundary === 'min' && !tmp?.max) || (boundary === 'max' && !tmp?.min))
-    ) {
-        customThresholds.delete(parameterId);
-        return;
-    }
-
-    if (tmp) {
-        tmp[boundary] = value;
-        return;
-    }
 
     customThresholds.set(parameterId, {
         id: entry.is_loaded ? (id ?? null) : undefined,

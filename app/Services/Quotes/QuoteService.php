@@ -192,11 +192,15 @@ class QuoteService {
 
     private function syncReportThresholds(Report $report, array $thresholds)
     {
-        $incomingIds = collect($thresholds)->pluck('parameter_id')->filter()->all();
+        $thresholds = collect($thresholds);
+        $incomingIds = $thresholds->pluck('parameter_id')->filter()->all();
         $report->thresholds()->whereNotIn('parameter_id', $incomingIds)->delete();
+        $report->thresholds()
+            ->whereIn('id', $thresholds->whereNull('max')->pluck('id')->all())
+            ->delete();
 
         $report->thresholds()->upsert(
-            $thresholds,
+            $thresholds->whereNotNull('max')->toArray(),
             uniqueBy: ['report_id', 'parameter_id'],
             update: ['min', 'max', 'custom_boundary']
         );

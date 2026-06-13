@@ -44,21 +44,22 @@ class BatchService
             : 'mixed';
     }
 
-    private function getAnalysisAreaId($analysisId)
+    private function getAnalysisAreaId(int $analysisId)
     {
         return Analysis::with('parameter:id,analysis_area_id')->find($analysisId)->parameter->analysis_area_id;
     }
 
     public function createService(array $data)
     {
-        DB::transaction(function() use($data) {
+        $analyses = Analysis::whereIn('id', $data['analyses'])->get();
+        DB::transaction(function() use($analyses, $data) {
             $batch = collect($data)
                 ->except('analyses');
             $batch->put('name', $this->getPrefix($batch['parameter']));
             $batch->put('matrix', $this->getMatrix($data['analyses']));
             $batch->put('analysis_area_id', $this->getAnalysisAreaId($data['analyses'][0]));
             $batch = Batch::create($batch->toArray());
-            $batch->analyses()->sync($data['analyses']);
+            $batch->analyses()->saveMany($analyses);
             $batch->analyses()->update(['registered' => true]);
             $batch->analyses()->increment('registration_counter');
         });

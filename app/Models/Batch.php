@@ -7,6 +7,7 @@ use App\Models\Catalog\SampleStorage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Batch extends Model
 {
@@ -36,9 +37,9 @@ class Batch extends Model
         'controls' => 'json',
     ];
 
-    public function analyses(): BelongsToMany
+    public function analyses(): HasMany
     {
-        return $this->belongsToMany(Analysis::class);
+        return $this->hasMany(Analysis::class);
     }
 
     public function analysisArea(): BelongsTo

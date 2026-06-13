@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class AnalysisService
 {
-    private Sample $sample;
     /**
      * Create a new class instance.
      */
@@ -19,45 +18,20 @@ class AnalysisService
     )
     {}
 
-    public function setSample(Sample $sample)
+    public function generateAnalyses(Sample $sample)
     {
-        $this->sample = $sample;
-        return $this;
+        DB::transaction(function() use($sample) {
+            $rows = $this->getRows($sample);
+            DB::table('analyses')->insert($rows);
+        });
     }
 
-    public function generateAnalyses()
+    public function addSampleThresholds(Sample $sample)
     {
-        DB::transaction(function() {
-            $this->insert();
-            $analyses = $this->sample->analyses()->select('id', 'parameter_id')->get();
-            $reports = $this->reports()
-                ->pluck('thresholds')
-                ->map(function($item) use($analyses) {
-                    return $item->whereIn('parameter_id', $analyses->pluck('parameter_id'))
-                    ->select(['id', 'parameter_id'])
-                    ->map(fn($item) => [$item['parameter_id'], $item['id']]);
-                });
-
-            $analyses = $analyses->mapToGroups(fn($item) => [$item->parameter_id => $item->id]);
-            $analyses = $analyses->toArray();
-            $rows = [];
-
-            foreach ($reports->toArray() as $report) {
-                foreach ($report as $thres) {
-                    [$parameterId, $thresholdId] = $thres;
-                    $analysis = $analyses[$parameterId];
-
-                    foreach ($analysis as $a) {
-                        $rows[] = [
-                            'analysis_id' => $a,
-                            'threshold_id' => $thresholdId
-                        ];
-                    }
-                }
-            }
-
-            DB::table('analysis_threshold')->insert($rows);
-            $this->sample->refresh();
+        $thresholds = $sample->thresholds;
+        $sample->analyses->each(function(Analysis $analysis) use($thresholds) {
+            $analysisThresholds = $thresholds->where('parameter_id', $analysis->parameter_id)->pluck('id')->all();
+            $analysis->thresholds()->sync($analysisThresholds);
         });
     }
 
@@ -74,8 +48,8 @@ class AnalysisService
                 'parameter',
                 'thresholds'
             ])
-            ->sampledFrom($from ?? now()->startOfMonth())
-            ->sampledUntil($until ?? now())
+            ->from($from ?? now()->startOfMonth())
+            ->until($until ?? now())
             ->addSelect(['total_indexes' => function($query) {
                 $query->selectRaw('COUNT(*)')
                     ->from('analyses as sub')
@@ -91,7 +65,7 @@ class AnalysisService
 
         if (!$user->hasRole('admin')) {
             $analyses->whereHas('parameter.analysisArea', function($query) use($user) {
-                $query->whereIn('code', $this->getAnalysesByArea($user));
+                $query->whereIn('code', $this->userService->analysisAreas($user));
             });
         }
 
@@ -104,81 +78,31 @@ class AnalysisService
         return $analyses->get()->append('isRanged');
     }
 
-    private function insert()
+    private function getRows(Sample $sample): array
     {
-        $this->sample->loadCount('takes');
-        $this->sample->load('takes');
-        $totalTakes = $this->sample->takes_count;
+        $sample->loadCount('takes');
+        $sample->load('takes');
+        $totalTakes = $sample->takes_count;
         $rows = [];
-        $this->parameters()
-            ->each(function($param) use(&$rows, $totalTakes) {
+        $sample->entry->parameters
+            ->each(function($param) use(&$rows, $totalTakes, $sample) {
                 $row = [
                     'parameter_id' => $param->parameter_id,
-                    'sample_id' => $this->sample->id
+                    'sample_id' => $sample->id
                 ];
 
-                if ($param->quantity > 1) {
-                    for ($i = 1; $i <= $totalTakes; $i++) {
-                        $row['index'] = $i;
-                        $row['take_id'] = $this->sample->takes->where('sequence', $i)->first()->id;
-                        $row['lab_matrix_id'] = $this->sample->matrix->id;
-                        $rows[] = $row;
+                for ($i = 1; $i <= $totalTakes; $i++) {
+                    $row['index'] = $i;
+                    $row['take_id'] = $sample->takes->where('sequence', $i)->first()->id;
+                    $row['lab_matrix_id'] = $sample->matrix->id;
+                    $rows[] = $row;
+
+                    if ($param->quantity === 1) {
+                        return;
                     }
-
-                    return;
                 }
-
-                $row['lab_matrix_id'] = $this->sample->matrix->id;
-                $row['index'] = 1;
-                $row['take_id'] = $this->sample->takes->first()->id;
-                $rows[] = $row;
             });
 
-        DB::table('analyses')->insert($rows);
-    }
-
-    private function reports()
-    {
-        return $this->sample
-            ->samplingFormat
-            ->entry
-            ->reports()
-            ->with('thresholds')
-            ->get();
-    }
-
-    private function parameters()
-    {
-        return $this->sample
-            ->samplingFormat
-            ->entry
-            ->parameters;
-    }
-
-    private function getAnalysesByArea(User $user)
-    {
-        $analysisAreas = [];
-
-        if ($user->hasRole('fq_analyst')) {
-            $analysisAreas[] = 'FQ';
-        }
-
-        if ($user->hasRole('aa_analyst')) {
-            $analysisAreas[] = 'AA';
-        }
-
-        if ($user->hasRole('mb_analyst')) {
-            $analysisAreas[] = 'MB';
-        }
-
-        if ($user->hasRole('icp_analyst')) {
-            $analysisAreas[] = 'ICP';
-        }
-
-        if ($user->hasRole('uv_analyst')) {
-            $analysisAreas[] = 'UV';
-        }
-
-        return $analysisAreas;
+        return $rows;
     }
 }

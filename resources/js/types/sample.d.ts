@@ -10,4 +10,5 @@ export interface Sample {
     reception_date: Date;
     sampled_by: number;
     sampling_format_id: number;
+    [key:string]: any;
 }

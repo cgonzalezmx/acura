@@ -8,7 +8,6 @@ use App\Models\Samples\Sample;
 use App\Services\Samples\SampleIndex;
 use App\Services\Samples\SampleService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SampleController extends Controller
 {
@@ -41,5 +40,15 @@ class SampleController extends Controller
             ->whereLike('identifier', "%{$request->str('term')}%")
             ->get();
         return response()->json($samples);
+    }
+
+    public function show(int $sampleId)
+    {
+        $s = Sample::find($sampleId);
+        $relations = $this->service->getRelations();
+        $sample = Sample::with($relations)
+            ->withCount(['reports'])
+            ->find($sampleId);
+        return inertia('Samples/Results', ['sample' => $sample, 's' => $s]);
     }
 }

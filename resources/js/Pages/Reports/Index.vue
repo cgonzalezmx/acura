@@ -3,13 +3,10 @@ import RangeDatePicker from '@/Components/RangeDatePicker.vue';
 import HomeLayout from '@/Layouts/HomeLayout.vue';
 import Toolbar from 'primevue/toolbar';
 import FetchAutoComplete from '@/Components/FetchAutoComplete.vue';
-import { useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import Button from 'primevue/button';
 import { format } from 'date-fns';
-import { Sample } from '@/types/sample';
 import IftaLabel from 'primevue/iftalabel';
-import { useAsyncState } from '@vueuse/core';
-import axios from 'axios';
 
 defineOptions({ layout: HomeLayout });
 
@@ -17,13 +14,12 @@ interface Props {
     samples?: any[];
 }
 
-const props = defineProps<Props>();
-
 interface QueriedResult {
     id: number,
     identifier: string;
 }
 
+const props = defineProps<Props>();
 const queryForm = useForm({
     start: null as Date | null,
     end: null as Date | null,
@@ -31,7 +27,6 @@ const queryForm = useForm({
     samplingFormat: '' as string | QueriedResult,
     client: '',
 });
-
 function filter() {
     if (Object.values(queryForm.data()).every((item) => !item)) {
         return;
@@ -97,6 +92,7 @@ function filter() {
         <table class="mt-4">
             <thead>
                 <tr>
+                    <th></th>
                     <th class="header">Muestra</th>
                     <th class="header">Total análisis</th>
                     <th class="header">No. tomas</th>
@@ -108,7 +104,9 @@ function filter() {
             </thead>
             <tbody>
                 <tr v-for="sample in samples" :key="sample.id">
-                    <td><Button icon="fa-solid fa-edit"/></td>
+                    <td>
+                        <Button icon="fa-solid fa-edit" as="a" :href="route('samples.show', sample.id)" target="_blank"/>
+                    </td>
                     <td>{{ sample.identifier }}</td>
                     <td>{{ sample.analyses_count }}</td>
                     <td>{{ sample.takes_count }}</td>
@@ -121,7 +119,3 @@ function filter() {
         </table>
     </div>
 </template>
-
-<style scoped>
-
-</style>

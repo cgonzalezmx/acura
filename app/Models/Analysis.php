@@ -4,20 +4,21 @@ namespace App\Models;
 
 use App\Models\Catalog\LabMatrix;
 use App\Models\Parameter;
-use App\Models\Quotes\Threshold;
 use App\Models\Samples\Sample;
+use App\Models\Samples\Threshold;
+use App\Models\Traits\FilterableByDate;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Builder;
 
 class Analysis extends Model
 {
+    use FilterableByDate;
+
     public $timestamps = false;
     protected $fillable = [
         'sequence',
@@ -67,9 +68,9 @@ class Analysis extends Model
         return Attribute::make(fn() => isset($this->parameter->uncertainty_low_range));
     }
 
-    public function batches(): BelongsToMany
+    public function batch(): BelongsTo
     {
-        return $this->belongsToMany(Batch::class);
+        return $this->belongsTo(Batch::class);
     }
 
     public function labMatrix(): BelongsTo
@@ -78,14 +79,18 @@ class Analysis extends Model
     }
 
     #[Scope]
-    protected function sampledFrom(Builder $query, string $date)
+    protected function from(Builder $query, string $date)
     {
-        $query->whereHas('sample', fn($query) => $query->whereDate('reception_date', '>=', $date));
+        $query->whereHas('sample', function(Builder $subQuery) use ($date) {
+            $subQuery->whereDate('reception_date', '>=', $date);
+        });
     }
 
     #[Scope]
-    protected function sampledUntil(Builder $query, string $date)
+    protected function until(Builder $query, string $date)
     {
-        $query->whereHas('sample', fn($query) => $query->whereDate('reception_date', '<=', $date));
+        $query->whereHas('sample', function(Builder $subQuery) use ($date) {
+            $subQuery->whereDate('reception_date', '<=', $date);
+        });
     }
 }

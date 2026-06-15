@@ -26,3 +26,4 @@ CHANGELOG.md
 /resources/views/
 /app/Services/UserService.php
 /app/Services/SamplingFormats/SamplingFormatIdentifierService.php
+/resources/Pages/Samples/Classes/Sample.ts

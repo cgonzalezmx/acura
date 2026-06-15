@@ -11,34 +11,13 @@
         "@fortawesome/free-regular-svg-icons": "^6.7.2",
         "@fortawesome/free-solid-svg-icons": "^6.7.2",
         "@fortawesome/vue-fontawesome": "^3.2.0",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        "@inertiajs/vue3": "^3.2.0",
-=======
-        "@inertiajs/vue3": "^3.3.0",
->>>>>>> bd39f8c (feat: new system to filter quotes and sampling formats)
-=======
-        "@inertiajs/vue3": "^3.3.1",
->>>>>>> 76b064e (build: update dependencies)
-        "@tailwindcss/vite": "^4.3.0",
-=======
         "@inertiajs/vue3": "^3.4.0",
         "@tailwindcss/vite": "^4.3.1",
->>>>>>> 06b651c (build: update dependencies)
         "@tanstack/vue-query": "^5.101.0",
         "@vitejs/plugin-vue": "^5.2.4",
         "@vueuse/core": "^11.3.0",
-<<<<<<< HEAD
-        "axios": "^1.16.1",
-<<<<<<< HEAD
-        "date-fns": "^4.3.0",
-=======
-=======
         "axios": "^1.17.0",
->>>>>>> 76b064e (build: update dependencies)
         "date-fns": "^4.4.0",
->>>>>>> bd39f8c (feat: new system to filter quotes and sampling formats)
         "laravel-vite-plugin": "^1.3.0",
         "pinia": "^3.0.4",
         "primevue": "^4.5.5",
@@ -47,38 +26,14 @@
         "tailwindcss-primeui": "^0.3.4",
         "typescript": "^5.9.3",
         "ulid": "^3.0.2",
-<<<<<<< HEAD
-        "vite": "^8.0.14",
-        "vue": "^3.5.34",
-=======
         "vite": "^8.0.16",
-<<<<<<< HEAD
-        "vue": "^3.5.35",
->>>>>>> bd39f8c (feat: new system to filter quotes and sampling formats)
-=======
         "vue": "^3.5.38",
->>>>>>> 06b651c (build: update dependencies)
         "vue-tsc": "^2.2.12"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^6.7.2",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        "@inertiajs/core": "^3.2.0",
-        "@inertiajs/vite": "^3.2.0",
-=======
-        "@inertiajs/core": "^3.3.0",
-        "@inertiajs/vite": "^3.3.0",
->>>>>>> bd39f8c (feat: new system to filter quotes and sampling formats)
-=======
-        "@inertiajs/core": "^3.3.1",
-        "@inertiajs/vite": "^3.3.1",
->>>>>>> 76b064e (build: update dependencies)
-=======
         "@inertiajs/core": "^3.4.0",
         "@inertiajs/vite": "^3.4.0",
->>>>>>> 06b651c (build: update dependencies)
         "@primeuix/themes": "^1.2.5",
         "@primevue/core": "^4.5.5",
         "@vueuse/components": "^12.8.2",

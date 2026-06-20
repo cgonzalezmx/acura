@@ -24,4 +24,5 @@ export interface Parameter {
         description: string;
     }[];
     multiple: boolean;
+    [key: string]: any;
 }

@@ -5,6 +5,7 @@
 /resources/js/Pages/Batches/
 /resources/js/composables/useMainMenu.ts
 /public/hot
+/vendor
 /weasyprint
 README.md
 *.config.*
@@ -26,4 +27,4 @@ CHANGELOG.md
 /resources/views/
 /app/Services/UserService.php
 /app/Services/SamplingFormats/SamplingFormatIdentifierService.php
-/resources/Pages/Samples/Classes/Sample.ts
+/resources/js/Pages/Samples/Classes/Sample.ts

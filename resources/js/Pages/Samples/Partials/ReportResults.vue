@@ -10,10 +10,18 @@ interface Data {
 }
 
 const dialogRef = useDialogRef<Data>();
+
+function disable(data: any) {
+    console.log(dialogRef.value.data.parameterMap[data.parameter_id])
+    return 'bg-red-500'
+}
 </script>
 
 <template>
-    <DataTable :value="dialogRef.data.thresholds">
+    <DataTable
+        :value="dialogRef.data.thresholds"
+        :rowClass="disable"
+    >
         <Column header="Análisis">
             <template #body="{ data }">
                 {{ dialogRef.data.parameterMap[data.parameter_id].name }}
@@ -30,9 +38,9 @@ const dialogRef = useDialogRef<Data>();
                     <div>L.M.C</div>
                     <div>C.M.C</div>
                 </div>
-                <template #body="{ data }">
-                    {{ dialogRef.data.parameterMap[data.parameter_id].quantification }}
-                </template>
+            </template>
+            <template #body="{ data }">
+                {{ dialogRef.data.parameterMap[data.parameter_id].quantification }}
             </template>
         </Column>
         <Column header="Incert." field="uncertainty"/>

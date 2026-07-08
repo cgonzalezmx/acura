@@ -19,7 +19,12 @@ interface Props {
     isPreview: boolean;
 }
 
+interface Emits {
+    onSuccess: [void]
+}
+
 const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
 const samplers = usePage<TPageProps>().props.samplers;
 const sample = ref(props.overview?.sample as Sample);
 const totalTakes = props.overview.takes_count;
@@ -36,11 +41,19 @@ function save() {
     };
 
     if (props.isPreview) {
-        router.post(route('samples.store'), payload as any);
+        router.post(route('samples.store'), payload as any, {
+            onSuccess() {
+                emit('onSuccess');
+            }
+        });
         return;
     }
 
-    router.patch(route('samples.update', sample.value.id), payload as any);
+    router.patch(route('samples.update', sample.value.id), payload as any, {
+        onSuccess() {
+            emit('onSuccess');
+        }
+    });
 }
 </script>
 

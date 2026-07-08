@@ -36,6 +36,7 @@ const samplingLapse = () => {
 
     return range.map((t) => format(t, 'HH:mm'));
 }
+
 const reports = listReports();
 const dialog = useDialog();
 const thresholdMap = mapThresholds();
@@ -58,7 +59,8 @@ function mapParameters() {
 
 function mapThresholds() {
     const map: Record<string, any> = {};
-    props.sample.analyses.forEach((analysis: any) => {
+    props.sample.analyses
+        .forEach((analysis) => {
         analysis.thresholds.forEach((threshold: any) => {
             const report = map[threshold.letter];
 
@@ -86,6 +88,12 @@ function openReport(letter: string) {
     });
 }
 
+function showAnalyzedAt(date?: string) {
+    if (date) {
+        return format(new Date(date), 'dd/MM/yyyy');
+    }
+}
+
 onMounted(() => {
     mapParameters();
 });
@@ -96,6 +104,8 @@ onMounted(() => {
         <thead>
             <tr>
                 <th class="header">Clave de muestra</th>
+                <th class="header">Cliente</th>
+                <th class="header">Punto de muestreo</th>
                 <th class="header"></th>
                 <th class="header">Fecha</th>
                 <th class="header">Hora</th>
@@ -105,15 +115,17 @@ onMounted(() => {
         <tbody>
             <tr>
                 <td rowspan="2" class="cell">{{ sample.identifier }}</td>
-                <td class="cell font-bold">Muestreo</td>
+                <td rowspan="2" class="cell">{{ sample.quote.client.name }}</td>
+                <td rowspan="2" class="cell">{{ sample.sampling_point }}</td>
+                <td class="cell font-semibold">Muestreo</td>
                 <td class="cell">{{ sampleDate() }}</td>
                 <td class="cell">{{ samplingLapse().join(' - ') }}</td>
                 <td rowspan="2" class="cell">{{ sample.quote.notes }}</td>
             </tr>
             <tr>
                 <td class="cell font-bold">Recepción</td>
-                <td class="cell">{{ format(sample.reception_date, 'dd/MM/yyyy') }}</td>
-                <td class="cell">{{ format(sample.reception_date, 'HH:mm') }}</td>
+                <td class="cell">{{ format(sample?.reception_date, 'dd/MM/yyyy') }}</td>
+                <td class="cell">{{ format(sample?.reception_date, 'HH:mm') }}</td>
             </tr>
         </tbody>
     </table>
@@ -124,11 +136,20 @@ onMounted(() => {
     </div>
     <DataTable :value="sample.analyses" class="font-mono">
         <Column header="Análisis" field="parameter.name"/>
-        <Column header="Resultado calculado"/>
+        <Column header="Resultado calculado" field="result"/>
         <Column header="Unidad" field="parameter.unit"/>
         <Column header="Limite de cuantificación" field="parameter.quantification"/>
-        <Column header="Incertidumbre" field="parameter.uncertainty"/>
-        <Column header="Resultado reportado"/>
+        <Column header="Coeficiente de incertidumbre" field="parameter.uncertainty"/>
+        <Column header="Resultado reportado" field="reported_result"/>
+        <Column header="LMP" field="smallest_max_threshold"/>
+        <Column header="Fecha de análisis">
+            <template #body="{ data }">
+                {{ showAnalyzedAt(data.analyzed_at) }}
+            </template>
+        </Column>
+        <Column header="Analista" field="analyzed_by.alias"/>
+        <Column header="Bitácora" field="log"/>
+        <Column header="Método" field="method"/>
     </DataTable>
     <DynamicDialog/>
 </template>

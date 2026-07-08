@@ -164,6 +164,7 @@ class QuoteService {
     public function syncEntries(Quote $quote, array $entries)
     {
         $incomingIds = collect($entries)->pluck('entry_id')->filter()->all();
+        $staleEntryIds = $quote->entries()->whereNotIn('entry_id', $incomingIds)->get()->pluck('id');
         $quote->entries()->whereNotIn('entry_id', $incomingIds)->delete();
 
         foreach($entries as $item) {
@@ -174,6 +175,7 @@ class QuoteService {
             );
             $this->syncEntryParameters($entry, $item['included_parameters']);
             $this->syncReports($entry, $reports);
+            $this->deleteEntryParameters($quote, $staleEntryIds->toArray());
         }
     }
 
@@ -221,6 +223,11 @@ class QuoteService {
             uniqueBy: ['quote_entry_id', 'parameter_id'],
             update: ['quantity']
         );
+    }
+
+    private function deleteEntryParameters(Quote $quote, array $ids)
+    {
+        $quote->parameters()->whereIn('quote_entry_id', $ids)->delete();
     }
 
     private function syncExpenses(Quote $quote, array $data)

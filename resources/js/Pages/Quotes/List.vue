@@ -15,11 +15,11 @@ import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import IndexTable from '@/Components/IndexTable.vue';
 
 interface Props {
-    quotes: any[];
+    items: any[];
 }
 
 defineOptions({ layout: HomeLayout });
-const { quotes } = defineProps<Props>();
+const { items } = defineProps<Props>();
 const SamplingSites = defineAsyncComponent(() => import('./Partials/SamplingSites.vue'));
 const dialog = useDialog();
 const toast = useToast();
@@ -118,7 +118,12 @@ async function showSampleSites(quote: any) {
 <template>
     <Head title="Cotizaciones"/>
     <h2 class="text-3xl font-semibold">Cotizaciones</h2>
-    <IndexTable :value="quotes" :menu-items :global-filters="['identifier', 'client']" ref="indexTable">
+    <IndexTable
+        :value="items"
+        :menu-items
+        :global-filters="['identifier', 'client']"
+        route="quotes"
+        ref="indexTable">
         <Column selection-mode="single"/>
         <Column>
             <template #body="{ data }">

@@ -42,7 +42,7 @@ class QuoteController extends Controller
             ->until($until)
             ->get();
         return inertia('Quotes/List', [
-            'quotes' => ListedQuoteResource::collection($quotes)
+            'items' => ListedQuoteResource::collection($quotes)
         ]);
     }
 

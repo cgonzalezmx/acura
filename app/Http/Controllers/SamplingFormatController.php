@@ -37,7 +37,7 @@ class SamplingFormatController extends Controller
             ->until($until)
             ->get();
         return inertia('SamplingFormats/Index', [
-            'samplingFormats' => ListResource::collection($samplingFormats)
+            'items' => ListResource::collection($samplingFormats)
         ]);
     }
 

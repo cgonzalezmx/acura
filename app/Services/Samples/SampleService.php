@@ -9,10 +9,12 @@ use App\Models\Samples\Sample;
 use App\Models\Samples\Threshold as SampleThreshold;
 use App\Models\SamplingFormat;
 use App\Services\Analyses\AnalysisService;
+use App\Traits\ResolvesNumericExpression;
 use Illuminate\Support\Facades\DB;
 
 class SampleService
 {
+    use ResolvesNumericExpression;
     /**
      * Create a new class instance.
      */
@@ -117,7 +119,6 @@ class SampleService
         return $quotes->pluck('samples')->flatten(1);
     }
 
-
     public function getRelations()
     {
         return [
@@ -125,6 +126,8 @@ class SampleService
             'quote',
             'analyses' => function($query) {
                 $query->with([
+                    'thresholds',
+                    'analyzedBy',
                     'parameter' => function($subQuery) {
                         $subQuery->join('analyses', function($join) {
                             $join->on('parameters.id', '=', 'analyses.parameter_id');
@@ -154,7 +157,6 @@ class SampleService
                             $rawUncertainty,
                         ]);
                     },
-                    'thresholds',
                 ]);
             },
         ];
@@ -169,7 +171,19 @@ class SampleService
         $reportThresholds
             ->select(['min', 'max', 'letter', 'parameter_id'])
             ->each(function($threshold) use(&$sampleThresholds) {
-                $sampleThresholds[] = SampleThreshold::create($threshold);
+                $values = [...$threshold];
+
+                if ($min = $this->resolveNumericExpession($threshold['min'] ?? null, step: 0.000001)) {
+                    $values['min_numeric_value'] = $min[1];
+                }
+
+                $max = $threshold['max'];
+
+                if (!in_array($max, ['N.A.', 'N.E.'])) {
+                    $values['max_numeric_value'] = $this->resolveNumericExpession($max, step: 0.000001)[1];
+                }
+
+                $sampleThresholds[] = SampleThreshold::create($values);
             });
         $sample->thresholds()->saveMany($sampleThresholds);
     }

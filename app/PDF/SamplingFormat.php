@@ -4,7 +4,7 @@ namespace App\PDF;
 
 use Illuminate\Contracts\Support\Renderable;
 use WeasyPrint\Objects\Source;
-use WeasyPrint\PDF;
+use App\Support\PDF;
 
 class SamplingFormat extends PDF
 {

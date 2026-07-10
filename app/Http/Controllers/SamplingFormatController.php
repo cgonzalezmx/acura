@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Resources\SamplingFormats\ListResource;
 use App\Models\Quotes\Entry;
 use App\Models\SamplingFormat;
+use App\PDF\SamplingFormat as PDFSamplingFormat;
 use App\Services\Formats\ClientEntityAdapter;
 use App\Services\Formats\SamplingFormatAdapter;
 use App\Services\SamplingFormats\SamplingFormatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use WeasyPrint\Facade as Weasyprint;
 
 class SamplingFormatController extends Controller
 {
@@ -60,12 +60,10 @@ class SamplingFormatController extends Controller
         });
 
         if ($format) {
-            $data = $adapter->process($format);
-            $source = view('sampling_format', $data);
-            $service = Weasyprint::prepareSource($source);
-            $filename = $format->identifier . '.pdf';
-            $path = "sampling_formats/$filename";
-            if ($service->putFile($path, 'local')) {
+            $props = $adapter->process($format);
+            $file = new PDFSamplingFormat($props);
+            $path = "sampling_formats/{$file->filename()}";
+            if ($file->saveToDisk('sampling_formats')) {
                 $format->path = $path;
                 $format->save();
             }

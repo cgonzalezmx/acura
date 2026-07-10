@@ -15,7 +15,8 @@ use App\Services\Regulatory\Structure\TreeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use WeasyPrint\Facade as Weasyprint;
+use WeasyPrint\Objects\Config;
+use WeasyPrint\WeasyPrintFactory;
 
 class QuoteController extends Controller
 {
@@ -166,8 +167,7 @@ class QuoteController extends Controller
     {
         $pdf = $file->process($quote);
         $filePath = "quotes/{$pdf->filename()}";
-        $service = Weasyprint::prepareSource($pdf->source());
-        $service->putFile($filePath, 'local');
+        $pdf->saveToDisk('quotes');
         $quote->authorized = true;
         $quote->file_path = $filePath;
         $quote->save();

@@ -8,12 +8,12 @@ use WeasyPrint\Integration\Laravel\PDF as LaravelPDF;
 
 abstract class PDF extends LaravelPDF
 {
-    public function saveToDisk(string $path)
+    public function saveToDisk(string $path): bool
     {
         $output = app(WeasyPrint::class)
             ->tapConfig($this->config(...))
             ->prepareSource($this->source())
             ->build();
-        Storage::disk('local')->put($path . DIRECTORY_SEPARATOR . $this->filename(), $output);
+        return Storage::disk('local')->put($path . DIRECTORY_SEPARATOR . $this->filename(), $output);
     }
 }

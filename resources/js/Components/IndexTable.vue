@@ -74,6 +74,7 @@ function openConfirmationDialog(config: ConfirmationDialogConfig) {
                             life: 3000
                         });
                         dialogInstance.close();
+                        selection.value = null;
                     }
                 };
 

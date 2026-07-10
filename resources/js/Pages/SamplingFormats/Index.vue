@@ -38,7 +38,7 @@ function trash() {
     <Head title="Formatos de muestreo"/>
     <IndexTable
         :value="items"
-        :menuItems
+        :menu-items
         :globalFilters="['identifier', 'quote_identifier']"
         route="sampling-formats"
         ref="indexTable">

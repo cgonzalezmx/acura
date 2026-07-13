@@ -1,9 +1,9 @@
-CREATE TABLE IF NOT EXISTS "migrations"(
+CREATE TABLE "migrations"(
   "id" integer primary key autoincrement not null,
   "migration" varchar not null,
   "batch" integer not null
 );
-CREATE TABLE IF NOT EXISTS "sessions"(
+CREATE TABLE "sessions"(
   "id" varchar not null,
   "user_id" integer,
   "ip_address" varchar,
@@ -14,19 +14,19 @@ CREATE TABLE IF NOT EXISTS "sessions"(
 );
 CREATE INDEX "sessions_user_id_index" on "sessions"("user_id");
 CREATE INDEX "sessions_last_activity_index" on "sessions"("last_activity");
-CREATE TABLE IF NOT EXISTS "cache"(
+CREATE TABLE "cache"(
   "key" varchar not null,
   "value" text not null,
   "expiration" integer not null,
   primary key("key")
 );
-CREATE TABLE IF NOT EXISTS "cache_locks"(
+CREATE TABLE "cache_locks"(
   "key" varchar not null,
   "owner" varchar not null,
   "expiration" integer not null,
   primary key("key")
 );
-CREATE TABLE IF NOT EXISTS "jobs"(
+CREATE TABLE "jobs"(
   "id" integer primary key autoincrement not null,
   "queue" varchar not null,
   "payload" text not null,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS "jobs"(
   "created_at" integer not null
 );
 CREATE INDEX "jobs_queue_index" on "jobs"("queue");
-CREATE TABLE IF NOT EXISTS "job_batches"(
+CREATE TABLE "job_batches"(
   "id" varchar not null,
   "name" varchar not null,
   "total_jobs" integer not null,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS "job_batches"(
   "finished_at" integer,
   primary key("id")
 );
-CREATE TABLE IF NOT EXISTS "failed_jobs"(
+CREATE TABLE "failed_jobs"(
   "id" integer primary key autoincrement not null,
   "uuid" varchar not null,
   "connection" text not null,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS "failed_jobs"(
   "failed_at" datetime not null default CURRENT_TIMESTAMP
 );
 CREATE UNIQUE INDEX "failed_jobs_uuid_unique" on "failed_jobs"("uuid");
-CREATE TABLE IF NOT EXISTS "analysis_areas"(
+CREATE TABLE "analysis_areas"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS "analysis_areas"(
 );
 CREATE UNIQUE INDEX "analysis_areas_name_unique" on "analysis_areas"("name");
 CREATE UNIQUE INDEX "analysis_areas_code_unique" on "analysis_areas"("code");
-CREATE TABLE IF NOT EXISTS "lab_matrices"(
+CREATE TABLE "lab_matrices"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS "lab_matrices"(
 );
 CREATE UNIQUE INDEX "lab_matrices_name_unique" on "lab_matrices"("name");
 CREATE UNIQUE INDEX "lab_matrices_code_unique" on "lab_matrices"("code");
-CREATE TABLE IF NOT EXISTS "sample_containers"(
+CREATE TABLE "sample_containers"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS "sample_containers"(
 CREATE UNIQUE INDEX "sample_containers_name_unique" on "sample_containers"(
   "name"
 );
-CREATE TABLE IF NOT EXISTS "sample_preservers"(
+CREATE TABLE "sample_preservers"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS "sample_preservers"(
 CREATE UNIQUE INDEX "sample_preservers_name_unique" on "sample_preservers"(
   "name"
 );
-CREATE TABLE IF NOT EXISTS "methodologies"(
+CREATE TABLE "methodologies"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS "methodologies"(
   foreign key("deleted_by") references "users"("id")
 );
 CREATE UNIQUE INDEX "methodologies_name_unique" on "methodologies"("name");
-CREATE TABLE IF NOT EXISTS "sampling_remarks"(
+CREATE TABLE "sampling_remarks"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS "sampling_remarks"(
 CREATE UNIQUE INDEX "sampling_remarks_code_unique" on "sampling_remarks"(
   "code"
 );
-CREATE TABLE IF NOT EXISTS "quote_remarks"(
+CREATE TABLE "quote_remarks"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS "quote_remarks"(
   foreign key("deleted_by") references "users"("id")
 );
 CREATE UNIQUE INDEX "quote_remarks_code_unique" on "quote_remarks"("code");
-CREATE TABLE IF NOT EXISTS "measurement_units"(
+CREATE TABLE "measurement_units"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS "measurement_units"(
   foreign key("updated_by") references "users"("id"),
   foreign key("deleted_by") references "users"("id")
 );
-CREATE TABLE IF NOT EXISTS "label_colors"(
+CREATE TABLE "label_colors"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -206,22 +206,7 @@ CREATE TABLE IF NOT EXISTS "label_colors"(
   foreign key("updated_by") references "users"("id"),
   foreign key("deleted_by") references "users"("id")
 );
-CREATE TABLE IF NOT EXISTS "parameter_groups"(
-  "id" integer primary key autoincrement not null,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  "created_by" integer,
-  "updated_by" integer,
-  "deleted_by" integer,
-  "name" varchar not null,
-  "order" integer not null,
-  "description" text,
-  foreign key("created_by") references "users"("id"),
-  foreign key("updated_by") references "users"("id"),
-  foreign key("deleted_by") references "users"("id")
-);
-CREATE TABLE IF NOT EXISTS "parameter_categories"(
+CREATE TABLE "parameter_categories"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -235,51 +220,7 @@ CREATE TABLE IF NOT EXISTS "parameter_categories"(
   foreign key("updated_by") references "users"("id"),
   foreign key("deleted_by") references "users"("id")
 );
-CREATE TABLE IF NOT EXISTS "parameters"(
-  "id" integer primary key autoincrement not null,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  "created_by" integer,
-  "updated_by" integer,
-  "deleted_by" integer,
-  "version" integer not null default '1',
-  "name" varchar not null,
-  "price" numeric not null default '0',
-  "unit_volume" varchar,
-  "group_volume" varchar,
-  "validity" varchar,
-  "measurement_unit_id" integer,
-  "lab_matrix_id" integer not null,
-  "methodology_id" integer not null default '0',
-  "sample_container_id" integer not null default '0',
-  "label_color_id" integer,
-  "parameter_group_id" integer,
-  "parameter_category_id" integer,
-  "sample_preserver_id" integer not null default '1',
-  "sample_storage_id" integer not null,
-  "analysis_area_id" integer not null,
-  "quantification_low_range" integer,
-  "quantification_mid_range" integer,
-  "quantification_high_range" integer,
-  "uncertainty_low_range" integer,
-  "uncertainty_mid_range" integer,
-  "uncertainty_high_range" integer,
-  foreign key("created_by") references "users"("id"),
-  foreign key("updated_by") references "users"("id"),
-  foreign key("deleted_by") references "users"("id"),
-  foreign key("measurement_unit_id") references "measurement_units"("id"),
-  foreign key("lab_matrix_id") references "lab_matrices"("id"),
-  foreign key("methodology_id") references "methodologies"("id"),
-  foreign key("sample_container_id") references "sample_containers"("id"),
-  foreign key("label_color_id") references "label_colors"("id"),
-  foreign key("parameter_group_id") references "parameter_groups"("id"),
-  foreign key("parameter_category_id") references "parameter_categories"("id"),
-  foreign key("sample_preserver_id") references "sample_preservers"("id"),
-  foreign key("sample_storage_id") references "sample_storages"("id"),
-  foreign key("analysis_area_id") references "analysis_areas"("id")
-);
-CREATE TABLE IF NOT EXISTS "sample_storages"(
+CREATE TABLE "sample_storages"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -293,7 +234,7 @@ CREATE TABLE IF NOT EXISTS "sample_storages"(
   foreign key("updated_by") references "users"("id"),
   foreign key("deleted_by") references "users"("id")
 );
-CREATE TABLE IF NOT EXISTS "bundle_parameter"(
+CREATE TABLE "bundle_parameter"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -302,7 +243,7 @@ CREATE TABLE IF NOT EXISTS "bundle_parameter"(
   foreign key("bundle_id") references "bundles"("id"),
   foreign key("parameter_id") references "parameters"("id")
 );
-CREATE TABLE IF NOT EXISTS "clients"(
+CREATE TABLE "clients"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -326,7 +267,7 @@ CREATE TABLE IF NOT EXISTS "clients"(
   foreign key("updated_by") references "users"("id"),
   foreign key("deleted_by") references "users"("id")
 );
-CREATE TABLE IF NOT EXISTS "client_contacts"(
+CREATE TABLE "client_contacts"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -347,7 +288,7 @@ CREATE TABLE IF NOT EXISTS "client_contacts"(
   foreign key("deleted_by") references "users"("id"),
   foreign key("client_id") references "clients"("id")
 );
-CREATE TABLE IF NOT EXISTS "client_sampling_sites"(
+CREATE TABLE "client_sampling_sites"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -377,16 +318,7 @@ CREATE TABLE IF NOT EXISTS "client_sampling_sites"(
   foreign key("deleted_by") references "users"("id"),
   foreign key("client_id") references "clients"("id")
 );
-CREATE TABLE IF NOT EXISTS "users"(
-  "id" integer primary key autoincrement not null,
-  "name" varchar not null,
-  "password" varchar not null,
-  "remember_token" varchar,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "alias" varchar not null
-);
-CREATE TABLE IF NOT EXISTS "regulation_parameter"(
+CREATE TABLE "regulation_parameter"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -399,7 +331,7 @@ CREATE UNIQUE INDEX "regulation_parameter_unique" on "regulation_parameter"(
   "regulation_id",
   "parameter_id"
 );
-CREATE TABLE IF NOT EXISTS "regulatory_thresholds"(
+CREATE TABLE "regulatory_thresholds"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -412,7 +344,7 @@ CREATE TABLE IF NOT EXISTS "regulatory_thresholds"(
   foreign key("regulation_id") references "regulations"("id") on delete cascade on update cascade,
   foreign key("regulation_instance_id") references "regulation_instance_tree"("id") on delete cascade on update cascade
 );
-CREATE TABLE IF NOT EXISTS "regulations"(
+CREATE TABLE "regulations"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -427,7 +359,7 @@ CREATE TABLE IF NOT EXISTS "regulations"(
   foreign key("created_by") references users("id") on delete no action on update no action,
   foreign key("lab_matrix_id") references lab_matrices("id") on delete no action on update no action
 );
-CREATE TABLE IF NOT EXISTS "bundles"(
+CREATE TABLE "bundles"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -442,7 +374,7 @@ CREATE TABLE IF NOT EXISTS "bundles"(
   foreign key("updated_by") references users("id") on delete no action on update no action,
   foreign key("created_by") references users("id") on delete no action on update no action
 );
-CREATE TABLE IF NOT EXISTS "regulation_instance_tree"(
+CREATE TABLE "regulation_instance_tree"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -454,7 +386,7 @@ CREATE TABLE IF NOT EXISTS "regulation_instance_tree"(
   foreign key("regulation_id") references regulations("id") on delete cascade on update cascade,
   foreign key("parent_id") references regulation_instance_tree("id") on delete no action on update no action
 );
-CREATE TABLE IF NOT EXISTS "regulation_tree"(
+CREATE TABLE "regulation_tree"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -472,7 +404,7 @@ CREATE UNIQUE INDEX "unique_node_index" on "regulation_tree"(
   "parent_id",
   "alias"
 );
-CREATE TABLE IF NOT EXISTS "quotes"(
+CREATE TABLE "quotes"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -502,6 +434,9 @@ CREATE TABLE IF NOT EXISTS "quotes"(
   "validity" varchar not null default '30 días',
   "payment_method" varchar,
   "price_adjustment_notes" text,
+  "global_expenses_concept" text,
+  "global_expenses_quantity" integer,
+  "file_path" varchar,
   foreign key("created_by") references "users"("id"),
   foreign key("updated_by") references "users"("id"),
   foreign key("deleted_by") references "users"("id"),
@@ -509,7 +444,7 @@ CREATE TABLE IF NOT EXISTS "quotes"(
   foreign key("parent_id") references "quotes"("id"),
   foreign key("original_ancestor_id") references "quotes"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_client_records"(
+CREATE TABLE "quote_client_records"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
   "industry_sector" varchar,
@@ -520,9 +455,10 @@ CREATE TABLE IF NOT EXISTS "quote_client_records"(
   "zip_code" varchar not null,
   "quote_id" integer not null,
   "client_id" integer,
+  "deleted_at" datetime,
   foreign key("quote_id") references "quotes"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_selected_contacts"(
+CREATE TABLE "quote_selected_contacts"(
   "id" integer primary key autoincrement not null,
   "name" varchar,
   "is_main_contact" tinyint(1) not null default '0',
@@ -534,11 +470,11 @@ CREATE TABLE IF NOT EXISTS "quote_selected_contacts"(
   foreign key("quote_id") references "quotes"("id"),
   foreign key("client_contact_id") references "client_contacts"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_selected_sampling_sites"(
+CREATE TABLE "quote_selected_sampling_sites"(
   "id" integer primary key autoincrement not null,
   "name" varchar,
   "industry_sector" varchar,
-  "is_main_saite" tinyint(1) not null default '0',
+  "is_main_site" tinyint(1) not null default '0',
   "address" varchar,
   "neighborhood" varchar,
   "city" varchar,
@@ -551,14 +487,14 @@ CREATE TABLE IF NOT EXISTS "quote_selected_sampling_sites"(
   foreign key("quote_id") references "quotes"("id"),
   foreign key("client_sampling_site_id") references "client_sampling_sites"("id")
 );
-CREATE TABLE IF NOT EXISTS "remarkables"(
+CREATE TABLE "remarkables"(
   "id" integer primary key autoincrement not null,
   "remarkable_id" integer not null,
   "remarkable_type" varchar not null,
   "parameter_id" integer not null,
   foreign key("parameter_id") references "parameters"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_parameter_records"(
+CREATE TABLE "quote_parameter_records"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
   "price" integer not null,
@@ -568,7 +504,7 @@ CREATE TABLE IF NOT EXISTS "quote_parameter_records"(
   foreign key("parameter_id") references "parameters"("id"),
   foreign key("quote_id") references "quotes"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_entries"(
+CREATE TABLE "quote_entries"(
   "id" integer primary key autoincrement not null,
   "entry_id" varchar not null,
   "title" varchar not null,
@@ -594,10 +530,11 @@ CREATE TABLE IF NOT EXISTS "quote_entries"(
   "matrix_id" integer not null,
   "quantity" integer not null default '1',
   "price_offset_notes" text,
+  "deleted_at" datetime,
   foreign key("quote_id") references "quotes"("id"),
   foreign key("matrix_id") references "lab_matrices"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_entry_parameters"(
+CREATE TABLE "quote_entry_parameters"(
   "id" integer primary key autoincrement not null,
   "quantity" integer not null,
   "expected_quantity" integer not null,
@@ -606,11 +543,12 @@ CREATE TABLE IF NOT EXISTS "quote_entry_parameters"(
   "quote_id" integer not null,
   "quote_entry_id" integer not null,
   "parameter_id" integer not null,
+  "deleted_at" datetime,
   foreign key("quote_id") references "quotes"("id"),
   foreign key("quote_entry_id") references "quote_entries"("id"),
   foreign key("parameter_id") references "parameters"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_entry_reports"(
+CREATE TABLE "quote_entry_reports"(
   "id" integer primary key autoincrement not null,
   "report_id" varchar not null,
   "structure_expanded_keys" text not null,
@@ -620,19 +558,22 @@ CREATE TABLE IF NOT EXISTS "quote_entry_reports"(
   "is_main_report" tinyint(1) not null,
   "observation" text not null,
   "entry_id" integer not null,
+  "deleted_at" datetime,
   foreign key("entry_id") references "quote_entries"("id")
 );
-CREATE TABLE IF NOT EXISTS "report_thresholds"(
+CREATE TABLE "report_thresholds"(
   "id" integer primary key autoincrement not null,
   "min" varchar,
   "max" varchar not null,
   "custom_boundary" varchar not null,
   "report_id" integer not null,
   "parameter_id" integer not null,
+  "deleted_at" datetime,
+  "letter" varchar,
   foreign key("report_id") references "quote_entry_reports"("id"),
   foreign key("parameter_id") references "parameters"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_expenses"(
+CREATE TABLE "quote_expenses"(
   "id" integer primary key autoincrement not null,
   "concept" varchar not null,
   "cost" integer not null,
@@ -640,7 +581,7 @@ CREATE TABLE IF NOT EXISTS "quote_expenses"(
   "quote_id" integer not null,
   foreign key("quote_id") references "quotes"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_notes"(
+CREATE TABLE "quote_notes"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -653,7 +594,7 @@ CREATE TABLE IF NOT EXISTS "quote_notes"(
   foreign key("updated_by") references "users"("id"),
   foreign key("deleted_by") references "users"("id")
 );
-CREATE TABLE IF NOT EXISTS "quote_commercial_terms"(
+CREATE TABLE "quote_commercial_terms"(
   "id" integer primary key autoincrement not null,
   "created_at" datetime,
   "updated_at" datetime,
@@ -670,6 +611,319 @@ CREATE UNIQUE INDEX "unique_parameter_remark" on "remarkables"(
   "parameter_id",
   "remarkable_id",
   "remarkable_type"
+);
+CREATE UNIQUE INDEX "unique_threshold" on "report_thresholds"(
+  "report_id",
+  "parameter_id"
+);
+CREATE UNIQUE INDEX "unique_parameter" on "quote_entry_parameters"(
+  "quote_entry_id",
+  "parameter_id"
+);
+CREATE UNIQUE INDEX "unique_entry" on "quote_entries"("entry_id");
+CREATE UNIQUE INDEX "unique_report" on "quote_entry_reports"("report_id");
+CREATE UNIQUE INDEX "unique_expense" on "quote_expenses"("id", "quote_id");
+CREATE TABLE "users"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "password" varchar not null,
+  "remember_token" varchar,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "alias" varchar not null,
+  "deleted_at" datetime,
+  "created_by" integer,
+  "updated_by" integer,
+  "deleted_by" integer,
+  "signature_path" varchar,
+  foreign key("created_by") references "users"("id"),
+  foreign key("updated_by") references "users"("id"),
+  foreign key("deleted_by") references "users"("id")
+);
+CREATE TABLE "parameters"(
+  "id" integer primary key autoincrement not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "created_by" integer,
+  "updated_by" integer,
+  "deleted_by" integer,
+  "version" integer not null default('1'),
+  "name" varchar not null,
+  "price" numeric not null default('0'),
+  "unit_volume" varchar,
+  "group_volume" varchar,
+  "validity" varchar,
+  "measurement_unit_id" integer,
+  "lab_matrix_id" integer not null,
+  "methodology_id" integer not null default('0'),
+  "sample_container_id" integer not null default('0'),
+  "label_color_id" integer,
+  "parameter_group_id" integer,
+  "sample_preserver_id" integer not null default('1'),
+  "sample_storage_id" integer not null,
+  "analysis_area_id" integer not null,
+  "quantification_low_range" integer,
+  "quantification_mid_range" integer,
+  "quantification_high_range" integer,
+  "uncertainty_low_range" integer,
+  "uncertainty_mid_range" integer,
+  "uncertainty_high_range" integer,
+  "multiple" tinyint(1) not null default '0',
+  foreign key("analysis_area_id") references analysis_areas("id") on delete no action on update no action,
+  foreign key("sample_storage_id") references sample_storages("id") on delete no action on update no action,
+  foreign key("sample_preserver_id") references sample_preservers("id") on delete no action on update no action,
+  foreign key("parameter_group_id") references parameter_groups("id") on delete no action on update no action,
+  foreign key("label_color_id") references label_colors("id") on delete no action on update no action,
+  foreign key("sample_container_id") references sample_containers("id") on delete no action on update no action,
+  foreign key("methodology_id") references methodologies("id") on delete no action on update no action,
+  foreign key("lab_matrix_id") references lab_matrices("id") on delete no action on update no action,
+  foreign key("measurement_unit_id") references measurement_units("id") on delete no action on update no action,
+  foreign key("deleted_by") references users("id") on delete no action on update no action,
+  foreign key("updated_by") references users("id") on delete no action on update no action,
+  foreign key("created_by") references users("id") on delete no action on update no action
+);
+CREATE TABLE "sampling_formats"(
+  "id" integer primary key autoincrement not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "created_by" integer,
+  "updated_by" integer,
+  "deleted_by" integer,
+  "identifier" varchar not null,
+  "path" varchar,
+  "sequence_index" integer not null default '1',
+  "year" varchar not null,
+  "quote_id" integer,
+  "entry_id" integer,
+  "entry_index" integer not null,
+  foreign key("created_by") references "users"("id"),
+  foreign key("updated_by") references "users"("id"),
+  foreign key("deleted_by") references "users"("id"),
+  foreign key("quote_id") references "quotes"("id"),
+  foreign key("entry_id") references "quote_entries"("id")
+);
+CREATE TABLE "parameter_groups"(
+  "id" integer primary key autoincrement not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "created_by" integer,
+  "updated_by" integer,
+  "deleted_by" integer,
+  "name" varchar not null,
+  "order" integer not null default '1',
+  "description" text,
+  "required_sample_volume" varchar not null,
+  "sample_container_id" integer not null,
+  "sample_preserver_id" integer not null,
+  "label_color_id" integer,
+  foreign key("deleted_by") references users("id") on delete no action on update no action,
+  foreign key("updated_by") references users("id") on delete no action on update no action,
+  foreign key("created_by") references users("id") on delete no action on update no action,
+  foreign key("sample_container_id") references "sample_containers"("id"),
+  foreign key("sample_preserver_id") references "sample_preservers"("id"),
+  foreign key("label_color_id") references "label_colors"("id")
+);
+CREATE TABLE "takes"(
+  "id" integer primary key autoincrement not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "created_by" integer,
+  "updated_by" integer,
+  "deleted_by" integer,
+  "timestamp" datetime not null,
+  "color" varchar not null,
+  "odour" varchar not null,
+  "appearance" varchar not null,
+  "sequence" integer not null,
+  "sample_id" integer not null,
+  foreign key("created_by") references "users"("id"),
+  foreign key("updated_by") references "users"("id"),
+  foreign key("deleted_by") references "users"("id"),
+  foreign key("sample_id") references "samples"("id")
+);
+CREATE TABLE "permissions"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "guard_name" varchar not null,
+  "created_at" datetime,
+  "updated_at" datetime
+);
+CREATE UNIQUE INDEX "permissions_name_guard_name_unique" on "permissions"(
+  "name",
+  "guard_name"
+);
+CREATE TABLE "roles"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "guard_name" varchar not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "label" varchar not null,
+  "description" text
+);
+CREATE UNIQUE INDEX "roles_name_guard_name_unique" on "roles"(
+  "name",
+  "guard_name"
+);
+CREATE TABLE "model_has_permissions"(
+  "permission_id" integer not null,
+  "model_type" varchar not null,
+  "model_id" integer not null,
+  foreign key("permission_id") references "permissions"("id") on delete cascade,
+  primary key("permission_id", "model_id", "model_type")
+);
+CREATE INDEX "model_has_permissions_model_id_model_type_index" on "model_has_permissions"(
+  "model_id",
+  "model_type"
+);
+CREATE TABLE "model_has_roles"(
+  "role_id" integer not null,
+  "model_type" varchar not null,
+  "model_id" integer not null,
+  foreign key("role_id") references "roles"("id") on delete cascade,
+  primary key("role_id", "model_id", "model_type")
+);
+CREATE INDEX "model_has_roles_model_id_model_type_index" on "model_has_roles"(
+  "model_id",
+  "model_type"
+);
+CREATE TABLE "role_has_permissions"(
+  "permission_id" integer not null,
+  "role_id" integer not null,
+  foreign key("permission_id") references "permissions"("id") on delete cascade,
+  foreign key("role_id") references "roles"("id") on delete cascade,
+  primary key("permission_id", "role_id")
+);
+CREATE TABLE "analysis_batch"(
+  "id" integer primary key autoincrement not null,
+  "analysis_id" integer not null,
+  "batch_id" integer not null,
+  foreign key("analysis_id") references "analyses"("id"),
+  foreign key("batch_id") references "batches"("id")
+);
+CREATE TABLE "batches"(
+  "id" integer primary key autoincrement not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "created_by" integer,
+  "updated_by" integer,
+  "deleted_by" integer,
+  "deleted_at" datetime,
+  "name" varchar not null,
+  "parameter" varchar not null,
+  "authorized" tinyint(1) not null default('0'),
+  "analyzed_at" datetime,
+  "saved_at" datetime,
+  "authorized_at" datetime,
+  "checkin_time" time,
+  "checkout_time" time,
+  "log" varchar,
+  "solutions_log" varchar,
+  "range" varchar not null default('mid'),
+  "matrix" varchar not null,
+  "minimal_quantification" varchar,
+  "sample_storage_id" integer,
+  "authorized_by" integer,
+  "analysis_area_id" integer not null,
+  "params" text,
+  "controls" text,
+  "flags" text,
+  foreign key("analysis_area_id") references analysis_areas("id") on delete no action on update no action,
+  foreign key("authorized_by") references users("id") on delete no action on update no action,
+  foreign key("deleted_by") references users("id") on delete no action on update no action,
+  foreign key("updated_by") references users("id") on delete no action on update no action,
+  foreign key("created_by") references users("id") on delete no action on update no action
+);
+CREATE TABLE "batch_sample_storage"(
+  "id" integer primary key autoincrement not null,
+  "batch_id" integer not null,
+  "sample_storage_id" integer not null
+);
+CREATE TABLE "samples"(
+  "id" integer primary key autoincrement not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "created_by" integer,
+  "updated_by" integer,
+  "deleted_by" integer,
+  "sampling_point" varchar not null,
+  "sample_temperature" integer not null,
+  "total_containers" integer not null,
+  "refrigerator" varchar not null,
+  "reception_date" datetime not null,
+  "canceled" tinyint(1) not null default('0'),
+  "acceptance" varchar,
+  "observation" text,
+  "identifier" varchar,
+  "sampling_format_id" integer not null,
+  "sampled_by" integer,
+  "is_urgent" tinyint(1) not null default('0'),
+  "entry_id" integer not null,
+  foreign key("sampled_by") references users("id") on delete no action on update no action,
+  foreign key("sampling_format_id") references sampling_formats("id") on delete no action on update no action,
+  foreign key("deleted_by") references users("id") on delete no action on update no action,
+  foreign key("updated_by") references users("id") on delete no action on update no action,
+  foreign key("created_by") references users("id") on delete no action on update no action,
+  foreign key("entry_id") references "quote_entries"("id")
+);
+CREATE TABLE "sample_thresholds"(
+  "id" integer primary key autoincrement not null,
+  "max" varchar not null,
+  "min" varchar,
+  "passed" tinyint(1),
+  "enabled" tinyint(1) not null default '1',
+  "letter" varchar not null,
+  "parameter_id" integer not null,
+  "sample_id" integer,
+  "max_numeric_value" integer,
+  "min_numeric_value" integer,
+  foreign key("parameter_id") references "parameters"("id"),
+  foreign key("sample_id") references "samples"("id")
+);
+CREATE TABLE "analysis_threshold"(
+  "id" integer primary key autoincrement not null,
+  "analysis_id" integer not null,
+  "threshold_id" integer not null,
+  foreign key("analysis_id") references analyses("id") on delete no action on update no action,
+  foreign key("threshold_id") references "sample_thresholds"("id")
+);
+CREATE TABLE "analyses"(
+  "id" integer primary key autoincrement not null,
+  "deleted_at" datetime,
+  "index" integer not null default('1'),
+  "result" varchar,
+  "reported_result" varchar,
+  "measurement_units" varchar,
+  "minimal_quantification" varchar,
+  "method" varchar,
+  "uncertainty" varchar,
+  "registered" tinyint(1) not null default('0'),
+  "authorized" tinyint(1) not null default('0'),
+  "canceled" tinyint(1) not null default('0'),
+  "veredict" varchar,
+  "authorized_by" integer,
+  "reported_by" integer,
+  "parameter_id" integer not null,
+  "sample_id" integer not null,
+  "registration_counter" integer not null default('0'),
+  "log" varchar,
+  "authorized_at" datetime,
+  "analyzed_at" datetime,
+  "saved_at" datetime,
+  "range" varchar not null default('mid'),
+  "lab_matrix_id" integer,
+  "take_id" integer not null,
+  "params" text,
+  "batch_id" integer,
+  "analyzed_by" integer,
+  foreign key("take_id") references takes("id") on delete no action on update no action,
+  foreign key("authorized_by") references users("id") on delete no action on update no action,
+  foreign key("reported_by") references users("id") on delete no action on update no action,
+  foreign key("parameter_id") references parameters("id") on delete no action on update no action,
+  foreign key("sample_id") references samples("id") on delete no action on update no action,
+  foreign key("analyzed_by") references "users"("id")
 );
 
 INSERT INTO migrations VALUES(1,'0001_01_01_000000_create_users_table',1);
@@ -728,3 +982,42 @@ INSERT INTO migrations VALUES(807,'2025_10_07_090727_rename_parameter_obsertvati
 INSERT INTO migrations VALUES(810,'2025_10_08_133439_alter_quotes_table',23);
 INSERT INTO migrations VALUES(812,'2025_10_08_160020_alter_quote_entries_table',24);
 INSERT INTO migrations VALUES(813,'2025_10_10_182528_remove_tree_leaves_from_quotes_table',25);
+INSERT INTO migrations VALUES(814,'2025_10_16_084743_make_quotes_chain_soft_deletes',26);
+INSERT INTO migrations VALUES(815,'2025_10_16_125006_add_unique_index_to_report_thresholds_table',26);
+INSERT INTO migrations VALUES(816,'2025_10_16_134307_add_unique_index_to_quote_entry_parameters',26);
+INSERT INTO migrations VALUES(817,'2025_10_17_174613_add_unique_index_to_quote_entries_table',26);
+INSERT INTO migrations VALUES(818,'2025_10_17_174930_add_unique_index_to_quote_entry_reports_table',26);
+INSERT INTO migrations VALUES(819,'2025_10_22_095643_add_unique_index_to_quote_expenses_table',26);
+INSERT INTO migrations VALUES(820,'2025_10_22_125909_add_global_expense_concept_and_global_expense_quantity_to_quotes_table',26);
+INSERT INTO migrations VALUES(821,'2025_11_19_142040_alter_users_table',26);
+INSERT INTO migrations VALUES(822,'2025_11_25_112735_drop_column_parameters_table',26);
+INSERT INTO migrations VALUES(823,'2025_11_25_114737_create_sampling_formats_table',26);
+INSERT INTO migrations VALUES(824,'2025_11_29_120634_add_column_to_parameter_groups_table',26);
+INSERT INTO migrations VALUES(825,'2025_12_09_132201_alter_parameter_groups_table',26);
+INSERT INTO migrations VALUES(826,'2025_12_15_091814_add_new_column_to_parameters_table',26);
+INSERT INTO migrations VALUES(827,'2026_01_06_174719_create_samples_table',26);
+INSERT INTO migrations VALUES(828,'2026_01_06_175322_create_takes_table',26);
+INSERT INTO migrations VALUES(829,'2026_01_26_160856_create_analyses_table',26);
+INSERT INTO migrations VALUES(830,'2026_01_26_165740_create_analysis_threshold_table',26);
+INSERT INTO migrations VALUES(831,'2026_01_29_145701_create_permission_tables',26);
+INSERT INTO migrations VALUES(832,'2026_01_29_184717_alter_table_roles',26);
+INSERT INTO migrations VALUES(833,'2026_02_04_184341_alter_analyses_table',26);
+INSERT INTO migrations VALUES(834,'2026_02_04_201153_create_batches_table',26);
+INSERT INTO migrations VALUES(835,'2026_02_04_232652_create_analysis_batch_table',26);
+INSERT INTO migrations VALUES(836,'2026_02_27_145153_drop_foreing_key_on_batches',26);
+INSERT INTO migrations VALUES(837,'2026_02_27_145300_create_batch_sample_storage_table',26);
+INSERT INTO migrations VALUES(838,'2026_02_27_182106_alter_analyses_table',26);
+INSERT INTO migrations VALUES(839,'2026_02_27_223528_alter_batches_table',26);
+INSERT INTO migrations VALUES(840,'2026_03_13_194928_alter_samples_table',26);
+INSERT INTO migrations VALUES(841,'2026_03_30_143837_modify_batches_table',26);
+INSERT INTO migrations VALUES(842,'2026_04_01_212436_add_entry_index_to_sampling_foramts',26);
+INSERT INTO migrations VALUES(843,'2026_05_25_231547_alter_quote_selected_sampling_sites_table',26);
+INSERT INTO migrations VALUES(844,'2026_05_27_214724_add_file_path_to_quotes_table',26);
+INSERT INTO migrations VALUES(845,'2026_06_02_163041_add_entry_id_to_samples_table',26);
+INSERT INTO migrations VALUES(846,'2026_06_03_150450_modify_analyses_table',26);
+INSERT INTO migrations VALUES(847,'2026_06_04_171336_add_letter_to_report_thresholds_table',26);
+INSERT INTO migrations VALUES(848,'2026_06_04_195020_create_sample_thresholds_table',26);
+INSERT INTO migrations VALUES(849,'2026_06_05_175929_alter_analysis_threshold_table',26);
+INSERT INTO migrations VALUES(850,'2026_06_11_153947_drop_client_and_matrix_from_samples_table',26);
+INSERT INTO migrations VALUES(851,'2026_06_29_163154_add_analyzed_by_to_analyses_table',26);
+INSERT INTO migrations VALUES(852,'2026_06_30_190312_modify_sample_thresholds_table',26);

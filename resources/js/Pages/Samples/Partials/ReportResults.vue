@@ -5,15 +5,21 @@ import Column from 'primevue/column';
 import { Threshold } from '@/types/analysis';
 
 interface Data {
-    parameterMap: Record<number, any>;
+    analyses: Record<string, any>;
     thresholds: Threshold[];
 }
 
 const dialogRef = useDialogRef<Data>();
 
-function disable(data: any) {
-    console.log(dialogRef.value.data.parameterMap[data.parameter_id])
+function disable(analysis: any) {
+    if (analysis.canceled) {
+        return 'bg-slate-400'
+    }
     return 'bg-red-500'
+}
+
+function getParameterInfo(parameterId: number, attr: string) {
+    return dialogRef.value.data.analyses[parameterId.toString()].parameter[attr];
 }
 </script>
 
@@ -24,12 +30,12 @@ function disable(data: any) {
     >
         <Column header="Análisis">
             <template #body="{ data }">
-                {{ dialogRef.data.parameterMap[data.parameter_id].name }}
+                {{ getParameterInfo(data.parameter_id, 'name') }}
             </template>
         </Column>
         <Column header="Unidad">
             <template #body="{ data }">
-                {{ dialogRef.data.parameterMap[data.parameter_id].unit }}
+                {{ getParameterInfo(data.parameter_id, 'unit') }}
             </template>
         </Column>
         <Column field="quantification">
@@ -40,9 +46,10 @@ function disable(data: any) {
                 </div>
             </template>
             <template #body="{ data }">
-                {{ dialogRef.data.parameterMap[data.parameter_id].quantification }}
+                {{ dialogRef.data.analyses[data.parameter_id].quantification }}
             </template>
         </Column>
         <Column header="Incert." field="uncertainty"/>
+        <Column header="Resultado reportado"/>
     </DataTable>
 </template>

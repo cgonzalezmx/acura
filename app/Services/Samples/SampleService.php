@@ -124,9 +124,9 @@ class SampleService
         return [
             'takes',
             'quote',
+            'thresholds',
             'analyses' => function($query) {
                 $query->with([
-                    'thresholds',
                     'analyzedBy',
                     'parameter' => function($subQuery) {
                         $subQuery->join('analyses', function($join) {

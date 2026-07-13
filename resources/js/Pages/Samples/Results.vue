@@ -5,7 +5,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import { useDialog } from 'primevue/usedialog';
-import { defineAsyncComponent, onMounted } from 'vue';
+import { defineAsyncComponent } from 'vue';
 import DynamicDialog from 'primevue/dynamicdialog';
 import { Analysis } from '@/types/analysis';
 
@@ -39,8 +39,7 @@ const samplingLapse = () => {
 
 const reports = listReports();
 const dialog = useDialog();
-const thresholdMap = mapThresholds();
-const parameterMap: Record<string, any> = {};
+const analyses = Object.values(props.sample.analyses);
 
 function listReports() {
     const reports = [];
@@ -51,39 +50,16 @@ function listReports() {
     return reports;
 }
 
-function mapParameters() {
-    props.sample.analyses.forEach((analysis) => {
-        parameterMap[analysis.parameter_id] = analysis.parameter;
-    });
-}
-
-function mapThresholds() {
-    const map: Record<string, any> = {};
-    props.sample.analyses
-        .forEach((analysis) => {
-        analysis.thresholds.forEach((threshold: any) => {
-            const report = map[threshold.letter];
-
-            if (typeof report !== 'undefined') {
-                report.push(threshold);
-                return;
-            }
-
-            map[threshold.letter] = [threshold];
-        });
-    });
-    return map;
-}
-
 function openReport(letter: string) {
+    const thresholds = props.sample.thresholds.filter((thres: any) => thres.letter === letter);
     dialog.open(ReportResults, {
         props: {
             modal: true,
             draggable: false,
         },
         data: {
-            thresholds: thresholdMap[letter],
-            parameterMap,
+            thresholds,
+            analyses: props.sample.analyses,
         }
     });
 }
@@ -93,10 +69,6 @@ function showAnalyzedAt(date?: string) {
         return format(new Date(date), 'dd/MM/yyyy');
     }
 }
-
-onMounted(() => {
-    mapParameters();
-});
 </script>
 
 <template>
@@ -134,7 +106,7 @@ onMounted(() => {
             Informe {{ letter }}
         </Button>
     </div>
-    <DataTable :value="sample.analyses" class="font-mono">
+    <DataTable :value="analyses" class="font-mono">
         <Column header="Análisis" field="parameter.name"/>
         <Column header="Resultado calculado" field="result"/>
         <Column header="Unidad" field="parameter.unit"/>

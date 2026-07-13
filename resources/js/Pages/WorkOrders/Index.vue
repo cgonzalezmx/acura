@@ -156,8 +156,8 @@ function verify() {
 
 function seed() {
     const seedable: Record<string, true> = {
-        'Demanada Bioquímica de Oxígeno': true,
-        'Demanada Bioquímica de Oxígeno Soluble': true,
+        'parámetro 3': true,
+        'parámetro 4': true,
     };
 
     if (!seedable[currentAnalysis.value]) {

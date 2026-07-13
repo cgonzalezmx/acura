@@ -22,6 +22,7 @@ interface Props {
     value: any[];
     menuItems: MenuItem[];
     globalFilters?: string[];
+    route: string;
 }
 
 const props = defineProps<Props>();
@@ -47,8 +48,8 @@ function search() {
                 until: format(data.until, dateFormat)
             }
         })
-        .get(route('quotes.index'), {
-        only: ['quotes'],
+        .get(route(props.route + '.index'), {
+        only: ['items'],
         preserveState: true
     });
 }
@@ -73,6 +74,7 @@ function openConfirmationDialog(config: ConfirmationDialogConfig) {
                             life: 3000
                         });
                         dialogInstance.close();
+                        selection.value = null;
                     }
                 };
 

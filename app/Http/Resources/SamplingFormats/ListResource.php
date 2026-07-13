@@ -24,6 +24,7 @@ class ListResource extends JsonResource
             : $contact->alt_eamil;
 
         return [
+            'id' => $this->id,
             'identifier' => $this->identifier,
             'quote_identifier' => $this->quote->identifier,
             'created_at' => $this->created_at->timezone('America/Mexico_City')->format('d/m/Y H:i'),

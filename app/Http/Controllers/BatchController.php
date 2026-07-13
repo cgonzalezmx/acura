@@ -10,8 +10,10 @@ use App\Models\Batch;
 use App\Models\Catalog\AnalysisArea;
 use App\Models\Catalog\SampleStorage;
 use App\Models\Parameter;
+use App\Models\Samples\Threshold;
 use App\Services\Batches\BatchService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class BatchController extends Controller
@@ -85,28 +87,68 @@ class BatchController extends Controller
         if (isset($validated['controls'])) {
             $batchPayload['controls'] = $validated['controls'];
         }
-        $analyzed_at = $request->array('batch')['analyzed_at'];
-        $batch->update($batchPayload);
-        foreach ($validated['analyses'] as $analysis) {
-            Analysis::find($analysis['id'])
-                ->update([
-                    ...$analysis,
-                    'params' => $analysis['params'],
-                    'analyzed_at' => $analyzed_at,
-                ]);
-        }
+        DB::transaction(function() use($batch, $batchPayload, $validated, $request) {
+            $analyzed_at = $request->array('batch')['analyzed_at'];
+            $batch->update($batchPayload);
+            $userId = $request->user()->id;
+
+            foreach ($validated['analyses'] as $analysis) {
+                Analysis::find($analysis['id'])
+                    ->update([
+                        ...$analysis,
+                        'params' => $analysis['params'],
+                        'analyzed_at' => $analyzed_at,
+                        'analyzed_by' => $userId
+                    ]);
+            }
+        });
     }
 
     public function authorize(Batch $batch, Request $request)
     {
-        $userId = $request->user()->id;
-        $batch->authorized = true;
-        $batch->save();
-        $batch->analyses()->update([
-            'authorized' => true,
-            'authorized_at' => now(),
-            'authorized_by' => $userId,
-        ]);
+        DB::transaction(function() use($batch, $request) {
+            $userId = $request->user()->id;
+            $this->resolveVeredict($batch);
+
+            $batch->authorized = true;
+            $batch->save();
+            $batch->analyses()->update([
+                'authorized' => true,
+                'authorized_at' => now(),
+                'authorized_by' => $userId,
+                'range' => $batch->range,
+                'log' => $batch->log,
+                'method' => DB::table('methodologies')
+                    ->join('parameters', 'parameters.methodology_id', '=', 'methodologies.id')
+                    ->whereColumn('parameters.id', 'analyses.parameter_id')
+                    ->select('methodologies.name')
+                    ->limit(1)
+            ]);
+        });
+    }
+
+    private function resolveVeredict(Batch $batch)
+    {
+        $updateValues = [];
+        $analyses = $batch->analyses()
+            ->select('sample_id', 'parameter_id', 'result')
+            ->get();
+
+        $test = DB::table('sample_thresholds as st')
+            ->join('analyses as a', 'st.parameter_id', '=', 'a.parameter_id')
+            ->whereIn('st.sample_id', $analyses->pluck('sample_id'))
+            ->whereIn('st.parameter_id', $analyses->pluck('parameter_id'))
+            ->select([
+                DB::raw("
+                    CASE
+                        WHEN st.max IN ('N.A.', 'N.E.') THEN 2
+                        WHEN CAST(a.result AS FLOAT) BETWEEN st.min AND st.max THEN 1
+                        WHEN st.max > CAST(a.result AS FLOAT) THEN 1
+                        ELSE 0
+                    END as veredict
+                ")
+            ]);
+        dd($test->get());
     }
 
     private function minQuantifiable(Batch $batch, Parameter $parameter)

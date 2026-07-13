@@ -41,29 +41,40 @@ function filterControls(controls: Record<string, AnalysisLikeControl>) {
 }
 
 function save() {
-    router.patch(route('batches.update', props.batch.id), {
-        batch: store.procedure,
-        analyses: store.analyses.map((item) => {
-            const params: Record<string, any> = {};
+    router.patch(route('batches.update', props.batch.id),
+        {
+            batch: store.procedure,
+            analyses: store.analyses.map((item) => {
+                const params: Record<string, any> = {};
 
-            if (store.config?.extendedColumns) {
-                for (const col of store.config?.extendedColumns) {
-                    if (col.inputType !== 'info') {
-                        params[col.key] = unref(item.params![col.key]);
+                if (store.config?.extendedColumns) {
+                    for (const col of store.config?.extendedColumns) {
+                        if (col.inputType !== 'info') {
+                            params[col.key] = unref(item.params![col.key]);
+                        }
                     }
                 }
-            }
 
-            return {
-                id: item.id,
-                result: unref(item.result),
-                reported_result: unref(item.reported_result),
-                params
-            };
-        }),
-        params: store.params,
-        controls: filterControls(store.controls as Record<string, AnalysisLikeControl>) as unknown as FormDataConvertible,
-    });
+                return {
+                    id: item.id,
+                    result: unref(item.result),
+                    reported_result: unref(item.reported_result),
+                    params
+                };
+            }),
+            params: store.params,
+            controls: filterControls(store.controls as Record<string, AnalysisLikeControl>) as unknown as FormDataConvertible,
+        },
+        {
+            onSuccess() {
+                toast.add({
+                    detail: 'Lote guardado',
+                    severity: 'success',
+                    life: 3000,
+                })
+            }
+        }
+    );
 }
 
 function authorize() {

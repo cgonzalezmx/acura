@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Catalog\AnalysisArea;
 use App\Models\Catalog\SampleStorage;
+use App\Models\Samples\Sample;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -50,5 +51,10 @@ class Batch extends Model
     public function sampleStorages(): BelongsToMany
     {
         return $this->belongsToMany(SampleStorage::class);
+    }
+
+    public function sample(): BelongsTo
+    {
+        return $this->belongsTo(Sample::class);
     }
 }

@@ -154,6 +154,8 @@ function closeDialog() {
             v-if="overview"
             :overview
             :takes
-            :is-preview/>
+            :is-preview
+            @on-success="show = false"
+        />
     </Dialog>
 </template>

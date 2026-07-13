@@ -40,7 +40,7 @@ class Parameter extends Model
         'sample_preserver_id',
         'analysis_area_id',
         'sample_storage_id',
-        'multple'
+        'multiple',
     ];
 
     protected $hidden = ['pivot'];

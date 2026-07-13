@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import CompanyLogo from '@/Components/CompanyLogo.vue';
 import { Link } from '@inertiajs/vue3';
 </script>
 

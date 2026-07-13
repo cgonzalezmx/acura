@@ -6,8 +6,8 @@ use App\Models\Catalog\LabMatrix;
 use App\Models\Parameter;
 use App\Models\Samples\Sample;
 use App\Models\Samples\Threshold;
-use App\Models\Traits\FilterableByDate;
 use App\Models\User;
+use App\Traits\ResolvesNumericExpression;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Analysis extends Model
 {
-    use FilterableByDate;
+    use ResolvesNumericExpression;
 
     public $timestamps = false;
     protected $fillable = [
@@ -31,11 +31,14 @@ class Analysis extends Model
         'take_id',
         'params',
         'analyzed_at',
+        'analyzed_by'
     ];
 
     protected $casts = [
         'registered' => 'boolean',
         'params' => 'json',
+        'authorized' => 'boolean',
+        'cancelled' => 'boolean',
     ];
 
     public function sample(): BelongsTo
@@ -78,6 +81,44 @@ class Analysis extends Model
         return $this->belongsTo(LabMatrix::class);
     }
 
+    public function analyzedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'analyzed_by');
+    }
+
+    protected function smallestMaxThreshold(): Attribute
+    {
+        return Attribute::make(
+            get: function() {
+                return $this->thresholds
+                    ->sortBy(fn($thres) => $this->sortKey($thres->max))
+                    ->first()
+                    ?->max;
+            }
+        );
+    }
+
+    private function sortKey(string $value): array
+    {
+        $value = trim($value);
+
+        if ($value === 'N.A.') {
+            return [2, 0];
+        }
+
+        if ($value === 'N.E.') {
+            return [3, 0];
+        }
+
+        $step = .001;
+        [$operator, $number] = $this->resolveNumericExpession($value, $step);
+
+        return match($operator) {
+            '<' => [1, $number - $step],
+            default => [1, $number]
+        };
+    }
+
     #[Scope]
     protected function from(Builder $query, string $date)
     {
@@ -90,7 +131,7 @@ class Analysis extends Model
     protected function until(Builder $query, string $date)
     {
         $query->whereHas('sample', function(Builder $subQuery) use ($date) {
-            $subQuery->whereDate('reception_date', '<=', $date);
+            $subQuery->whereDate('reception_date', '<=', $date . ' 23:59:59');
         });
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Samples;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Samples\StoreSampleRequest;
+use App\Http\Resources\Samples\ResultResource;
 use App\Models\Samples\Sample;
 use App\Services\Samples\SampleIndex;
 use App\Services\Samples\SampleService;
@@ -14,8 +15,7 @@ class SampleController extends Controller
     public function __construct(
         private SampleIndex $indexService,
         private SampleService $service
-    )
-    {}
+    ){}
 
     public function index()
     {
@@ -44,11 +44,12 @@ class SampleController extends Controller
 
     public function show(int $sampleId)
     {
-        $s = Sample::find($sampleId);
         $relations = $this->service->getRelations();
         $sample = Sample::with($relations)
             ->withCount(['reports'])
             ->find($sampleId);
-        return inertia('Samples/Results', ['sample' => $sample, 's' => $s]);
+        $sample->append('client');
+        $sample->analyses->append('smallest_max_threshold');
+        return inertia('Samples/Results', ['sample' => new ResultResource($sample)]);
     }
 }

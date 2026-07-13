@@ -10,8 +10,10 @@ class Threshold extends Model
     protected $table = 'sample_thresholds';
     protected $fillable = [
         'min',
+        'min_numeric_value',
         'max',
+        'max_numeric_value',
         'letter',
-        'parameter_id'
+        'parameter_id',
     ];
 }

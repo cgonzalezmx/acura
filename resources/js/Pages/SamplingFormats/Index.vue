@@ -8,7 +8,7 @@ import { MenuItem } from 'primevue/menuitem';
 import { useTemplateRef } from 'vue';
 
 interface Props {
-    samplingFormats: any[];
+    items: any[];
 }
 
 const props = defineProps<Props>();
@@ -36,7 +36,12 @@ function trash() {
 
 <template>
     <Head title="Formatos de muestreo"/>
-    <IndexTable :value="samplingFormats" :menuItems :globalFilters="['identifier', 'quote_identifier']" ref="indexTable">
+    <IndexTable
+        :value="items"
+        :menu-items
+        :globalFilters="['identifier', 'quote_identifier']"
+        route="sampling-formats"
+        ref="indexTable">
         <Column selection-mode="single"/>
         <Column>
             <template #body="{ data }">
